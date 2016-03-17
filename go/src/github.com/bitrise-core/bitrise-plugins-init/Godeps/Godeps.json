@@ -1,0 +1,23 @@
+{
+	"ImportPath": "github.com/bitrise-core/bitrise-plugins-init",
+	"GoVersion": "go1.6",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.9.0-15-g219c8cb",
+			"Rev": "219c8cb75c258c552e999735be6df753ffc7afdc"
+		},
+		{
+			"ImportPath": "github.com/codegangsta/cli",
+			"Comment": "1.2.0-219-ga294348",
+			"Rev": "a2943485b110df8842045ae0600047f88a3a56a1"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "833a04a10549a95dc34458c195cbad61bbb6cb4d"
+		}
+	]
+}

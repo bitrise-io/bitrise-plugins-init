@@ -1,0 +1,12 @@
+name: init
+description:
+executable:
+  osx: https://github.com/bitrise-core/bitrise-plugins-init/releases/download/0.9.0/init-Darwin-x86_64
+  linux: https://github.com/bitrise-core/bitrise-plugins-init/releases/download/0.9.0/init-Linux-x86_64
+requirements:
+- tool: envman
+  min_version: "1.0.0"
+  max_version: ""
+- tool: bitrise
+  min_version: 1.3.0
+  max_version: ""
