@@ -96,7 +96,26 @@ func Run() {
 		},
 	}
 	app.Before = before
-	app.Commands = []cli.Command{}
+	app.Commands = []cli.Command{
+		cli.Command{
+			Name:   "config",
+			Usage:  "Generates a bitrise config files in the current directory.",
+			Action: initConfig,
+			Flags:  []cli.Flag{},
+		},
+		cli.Command{
+			Name:   "step",
+			Usage:  "Generates step template files in the current directory.",
+			Action: initStep,
+			Flags:  []cli.Flag{},
+		},
+		cli.Command{
+			Name:   "plugin",
+			Usage:  "Generates plugin template files in the current directory.",
+			Action: initPlugin,
+			Flags:  []cli.Flag{},
+		},
+	}
 
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal("Finished with Error:", err)

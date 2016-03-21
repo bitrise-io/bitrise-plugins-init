@@ -11,6 +11,18 @@
 			"Rev": "219c8cb75c258c552e999735be6df753ffc7afdc"
 		},
 		{
+			"ImportPath": "github.com/bitrise-io/go-utils/fileutil",
+			"Rev": "873d35c6b6e0db94f60666a966b732b1ff6c6aa2"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/go-utils/pathutil",
+			"Rev": "873d35c6b6e0db94f60666a966b732b1ff6c6aa2"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/goinp/goinp",
+			"Rev": "af80680f5c8d508810be1ca5b757e236bb139466"
+		},
+		{
 			"ImportPath": "github.com/codegangsta/cli",
 			"Comment": "1.2.0-219-ga294348",
 			"Rev": "a2943485b110df8842045ae0600047f88a3a56a1"
