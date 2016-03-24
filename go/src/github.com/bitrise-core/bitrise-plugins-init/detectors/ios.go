@@ -78,7 +78,10 @@ func filterSchemes(fileList []string, project string) []string {
 
 	schemes := []string{}
 	for _, schemeFile := range schemeFiles {
-		scheme := filepath.Base(schemeFile)
+		schemeWithExt := filepath.Base(schemeFile)
+		ext := filepath.Ext(schemeWithExt)
+		scheme := strings.TrimSuffix(schemeWithExt, ext)
+
 		schemes = append(schemes, scheme)
 	}
 
@@ -95,7 +98,7 @@ func isValidProject() {
 
 // DetectIOS ...
 func DetectIOS() error {
-	searchDir := "/Users/godrei/Develop/iOS/cardstore"
+	searchDir := "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods"
 	// searchDir = "./"
 
 	fileList, err := fileList(searchDir)
@@ -185,9 +188,9 @@ func DetectIOS() error {
 	}
 	fmt.Println()
 
+	// Log configurations
 	for path, configs := range configMap {
 		log.Infof("Configurations for %s", path)
-		fmt.Println()
 		for _, config := range configs {
 			log.Infof("  %s", config)
 		}

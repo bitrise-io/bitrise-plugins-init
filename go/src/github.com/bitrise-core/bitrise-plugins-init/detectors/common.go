@@ -58,6 +58,11 @@ func filterFilesWithExtensions(fileList []string, extension ...string) []string 
 	return filteredFileList
 }
 
+func saseInsensitiveContains(s, substr string) bool {
+	s, substr = strings.ToUpper(s), strings.ToUpper(substr)
+	return strings.Contains(s, substr)
+}
+
 //--------------------------------------------------
 // Sorting
 //--------------------------------------------------

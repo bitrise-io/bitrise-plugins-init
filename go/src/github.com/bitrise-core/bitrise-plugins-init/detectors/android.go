@@ -90,11 +90,11 @@ func DetectAndroid() error {
 	log.Debugln("")
 
 	if len(gradleFiles) == 0 {
-		log.Infof("NO Android gradle project detected")
+		log.Infof("NO android gradle project detected")
 		return nil
 	}
 
-	log.Infof("Android gradle project detected")
+	log.Infof("android gradle project detected")
 	fmt.Println()
 
 	// Search for gradlew file
@@ -148,10 +148,10 @@ func DetectAndroid() error {
 	}
 	fmt.Println()
 
+	// Log configurations
 	for path, configs := range configMap {
 		log.Infof("Configurations for %s", path)
 		log.Info("Assemble configurations (except 'assemble'):")
-		fmt.Println()
 		for _, config := range configs {
 			log.Infof("  %s", config)
 		}
