@@ -11,6 +11,14 @@
 			"Rev": "219c8cb75c258c552e999735be6df753ffc7afdc"
 		},
 		{
+			"ImportPath": "github.com/bitrise-io/go-utils/cmdex",
+			"Rev": "873d35c6b6e0db94f60666a966b732b1ff6c6aa2"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/go-utils/colorstring",
+			"Rev": "873d35c6b6e0db94f60666a966b732b1ff6c6aa2"
+		},
+		{
 			"ImportPath": "github.com/bitrise-io/go-utils/fileutil",
 			"Rev": "873d35c6b6e0db94f60666a966b732b1ff6c6aa2"
 		},

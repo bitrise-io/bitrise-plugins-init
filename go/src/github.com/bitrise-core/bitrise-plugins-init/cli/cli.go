@@ -52,20 +52,20 @@ func before(c *cli.Context) error {
 	}
 	log.SetLevel(level)
 
-	bitriseVersion := os.Getenv(pluginInputBitriseVersionKey)
+	// bitriseVersion := os.Getenv(pluginInputBitriseVersionKey)
 
-	log.Debug("")
-	log.Debugf("pluginInputBitriseVersion: %s", bitriseVersion)
+	// log.Debug("")
+	// log.Debugf("pluginInputBitriseVersion: %s", bitriseVersion)
 
-	triggerEvent := os.Getenv(pluginInputTriggerEventKey)
+	// triggerEvent := os.Getenv(pluginInputTriggerEventKey)
 
-	log.Debug("")
-	log.Debugf("pluginInputTriggerEvent: %s", triggerEvent)
+	// log.Debug("")
+	// log.Debugf("pluginInputTriggerEvent: %s", triggerEvent)
 
-	dataDir := os.Getenv(pluginInputDataDirKey)
+	// dataDir := os.Getenv(pluginInputDataDirKey)
 
-	log.Debug("")
-	log.Debugf("pluginInputDataDir: %s", dataDir)
+	// log.Debug("")
+	// log.Debugf("pluginInputDataDir: %s", dataDir)
 
 	return nil
 }
@@ -100,7 +100,7 @@ func Run() {
 		cli.Command{
 			Name:   "config",
 			Usage:  "Generates a bitrise config files in the current directory.",
-			Action: initConfig,
+			Action: initConfigV2,
 			Flags:  []cli.Flag{},
 		},
 		cli.Command{
