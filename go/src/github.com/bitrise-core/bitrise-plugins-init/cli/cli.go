@@ -94,14 +94,29 @@ func Run() {
 			Usage:  "Log level (options: debug, info, warn, error, fatal, panic).",
 			EnvVar: "LOGLEVEL",
 		},
+		cli.BoolFlag{
+			Name:   "ci",
+			Usage:  "If true it indicates that we're used by another tool so don't require any user input!",
+			EnvVar: "CI",
+		},
 	}
 	app.Before = before
 	app.Commands = []cli.Command{
 		cli.Command{
 			Name:   "config",
 			Usage:  "Generates a bitrise config files in the current directory.",
-			Action: initConfigV2,
-			Flags:  []cli.Flag{},
+			Action: initConfig,
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:   "ci",
+					Usage:  "If true it indicates that we're used by another tool so don't require any user input!",
+					EnvVar: "CI",
+				},
+				cli.BoolFlag{
+					Name:  "private",
+					Usage: "If true it indicates that source repository is private!",
+				},
+			},
 		},
 		cli.Command{
 			Name:   "step",

@@ -1,4 +1,4 @@
-package detectors
+package utility
 
 import (
 	"encoding/json"
@@ -169,7 +169,8 @@ workspaces = podfile.get_workspaces(podfile.list_targets.first)
 puts workspaces.to_json
 `
 
-func getWorkspaces() (map[string]string, error) {
+// GetWorkspaces ...
+func GetWorkspaces() (map[string]string, error) {
 	tmpDir, err := pathutil.NormalizedOSTempDirPath("bitrise-plugin-init")
 	if err != nil {
 		return map[string]string{}, err

@@ -1,6 +1,7 @@
 package detectors
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"path"
@@ -9,21 +10,54 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/bitrise-core/bitrise-plugins-init/models"
+	"github.com/bitrise-core/bitrise-plugins-init/utility"
+	bitriseModels "github.com/bitrise-io/bitrise/models"
+	envmanModels "github.com/bitrise-io/envman/models"
+	stepmanModels "github.com/bitrise-io/stepman/models"
 )
 
 const (
-	xcodeprojExtension   = ".xcodeproj"
-	xcworkspaceExtension = ".xcworkspace"
-	podFileBasePath      = "Podfile"
-	schemeFileExtension  = ".xcscheme"
+	iosDetectorName = "ios"
 )
+
+const (
+	// XcodeprojExtension ...
+	XcodeprojExtension = ".xcodeproj"
+	// XcworkspaceExtension ...
+	XcworkspaceExtension = ".xcworkspace"
+	// PodFileBasePath ...
+	PodFileBasePath = "Podfile"
+	// SchemeFileExtension ...
+	SchemeFileExtension = ".xcscheme"
+)
+
+const (
+	projectPathKey    = "project_path"
+	projectPathTitle  = "Project (or Workspace) path"
+	projectPathEnvKey = "BITRISE_PROJECT_PATH"
+
+	schemeKey    = "scheme"
+	schemeTitle  = "Scheme name"
+	schemeEnvKey = "BITRISE_SCHEME"
+
+	stepCocoapodsInstallIDComposite = "cocoapods-install@1.1.0"
+	stepXcodeArchiveIDComposite     = "xcode-archive@1.7.0"
+	stepXcodeTestIDComposite        = "xcode-test@1.13.3"
+)
+
+// SchemeModel ...
+type SchemeModel struct {
+	Name    string
+	HasTest bool
+}
 
 //--------------------------------------------------
 // Utility
 //--------------------------------------------------
 
 func filterXcodeprojectFiles(fileList []string) []string {
-	filteredFiles := filterFilesWithExtensions(fileList, xcodeprojExtension, xcworkspaceExtension)
+	filteredFiles := utility.FilterFilesWithExtensions(fileList, XcodeprojExtension, XcworkspaceExtension)
 
 	relevantFiles := []string{}
 	workspaceEmbeddedInProjectExp := regexp.MustCompile(`.+.xcodeproj/.+.xcworkspace`)
@@ -42,8 +76,6 @@ func filterXcodeprojectFiles(fileList []string) []string {
 
 		if !isWorkspaceEmbeddedInProject && !isPodProject {
 			relevantFiles = append(relevantFiles, file)
-		} else {
-			log.Debugf("Disclude: %s", file)
 		}
 	}
 
@@ -51,13 +83,11 @@ func filterXcodeprojectFiles(fileList []string) []string {
 }
 
 func filterPodFiles(fileList []string) []string {
-	filteredFiles := filterFilesWithBasPaths(fileList, podFileBasePath)
+	filteredFiles := utility.FilterFilesWithBasPaths(fileList, PodFileBasePath)
 	relevantFiles := []string{}
 
 	for _, file := range filteredFiles {
-		if strings.Contains(file, ".git/") {
-			log.Debugf("Disclude: %s", file)
-		} else {
+		if !strings.Contains(file, ".git/") {
 			relevantFiles = append(relevantFiles, file)
 		}
 	}
@@ -65,8 +95,36 @@ func filterPodFiles(fileList []string) []string {
 	return relevantFiles
 }
 
-func filterSchemes(fileList []string, project string) []string {
-	filteredFiles := filterFilesWithExtensions(fileList, schemeFileExtension)
+func hasTest(schemeFile string) (bool, error) {
+	file, err := os.Open(schemeFile)
+	if err != nil {
+		return false, err
+	}
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Warnf("Failed to close file (%s), err: %s", schemeFile, err)
+		}
+	}()
+
+	testTargetExp := regexp.MustCompile(`BuildableName = ".+.xctest"`)
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if testTargetExp.FindString(line) != "" {
+			return true, nil
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return false, err
+	}
+
+	return false, nil
+}
+
+func filterSchemes(fileList []string, project string) ([]SchemeModel, error) {
+	filteredFiles := utility.FilterFilesWithExtensions(fileList, SchemeFileExtension)
 	projectScharedSchemesDir := path.Join(project, "xcshareddata/xcschemes/")
 
 	schemeFiles := []string{}
@@ -76,79 +134,94 @@ func filterSchemes(fileList []string, project string) []string {
 		}
 	}
 
-	schemes := []string{}
+	schemes := []SchemeModel{}
 	for _, schemeFile := range schemeFiles {
 		schemeWithExt := filepath.Base(schemeFile)
 		ext := filepath.Ext(schemeWithExt)
 		scheme := strings.TrimSuffix(schemeWithExt, ext)
+		hasTest, err := hasTest(schemeFile)
+		if err != nil {
+			return []SchemeModel{}, err
+		}
 
-		schemes = append(schemes, scheme)
+		schemes = append(schemes, SchemeModel{
+			Name:    scheme,
+			HasTest: hasTest,
+		})
 	}
 
-	return schemes
+	return schemes, nil
 }
 
-func isValidProject() {
-
+func iOSConfigName(hasPodfile, hasTest bool) string {
+	name := "ios-"
+	if hasPodfile {
+		name = name + "pod-"
+	}
+	if hasTest {
+		name = name + "test-"
+	}
+	return name + "config.yml"
 }
 
 //--------------------------------------------------
-// Main
+// Detector
 //--------------------------------------------------
 
-// DetectIOS ...
-func DetectIOS() error {
-	searchDir := "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods"
-	// searchDir = "./"
+// Ios ...
+type Ios struct {
+	SearchDir         string
+	FileList          []string
+	XcodeProjectFiles []string
 
-	fileList, err := fileList(searchDir)
+	HasPodFile bool
+	HasTest    bool
+}
+
+// Name ...
+func (detector Ios) Name() string {
+	return iosDetectorName
+}
+
+// Configure ...
+func (detector *Ios) Configure(searchDir string) {
+	detector.SearchDir = searchDir
+}
+
+// DetectPlatform ...
+func (detector *Ios) DetectPlatform() (bool, error) {
+	fileList, err := utility.FileList(detector.SearchDir)
 	if err != nil {
-		return fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
+		return false, fmt.Errorf("failed to search for files in (%s), error: %s", detector.SearchDir, err)
 	}
+	detector.FileList = fileList
 
 	// Search for xcodeproj/xcworkspace file
 	xcodeProjectFiles := filterXcodeprojectFiles(fileList)
-
-	log.Debugf("%s/%s files:", xcodeprojExtension, xcworkspaceExtension)
-	for _, xcodeProjectFile := range xcodeProjectFiles {
-		log.Debugf("  %s", xcodeProjectFile)
-	}
-	log.Debugln("")
+	detector.XcodeProjectFiles = xcodeProjectFiles
 
 	if len(xcodeProjectFiles) == 0 {
-		log.Infof("NO iOS project detected")
-		return nil
+		return false, nil
 	}
 
-	log.Infof("iOS project detected")
-	fmt.Println()
+	return true, nil
+}
 
+// Analyze ...
+func (detector *Ios) Analyze() ([]models.OptionModel, error) {
 	// Check for Podfiles
-	podFiles := filterPodFiles(fileList)
-
-	log.Debugf("%s files:", podFileBasePath)
-	for _, podFile := range podFiles {
-		log.Debugf("  %s", podFile)
-	}
-	log.Debugln("")
-
-	if len(podFiles) == 0 {
-		log.Infof("NO podfile detected")
-		return nil
-	}
-
-	log.Infof("Podfile detected")
-	fmt.Println()
+	podFiles := filterPodFiles(detector.FileList)
+	detector.HasPodFile = (len(podFiles) > 0)
 
 	workspaceMap := map[string]string{}
 	for _, podFile := range podFiles {
 		if err := os.Setenv("pod_file_path", podFile); err != nil {
-			return err
+			return nil, err
 		}
 
-		podfileWorkspaceMap, err := getWorkspaces()
+		podfileWorkspaceMap, err := utility.GetWorkspaces()
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		for workspace, project := range podfileWorkspaceMap {
@@ -157,10 +230,8 @@ func DetectIOS() error {
 	}
 
 	// Inspect projects
-	configMap := map[string][]string{}
-
 	validProjects := []string{}
-	for _, project := range xcodeProjectFiles {
+	for _, project := range detector.XcodeProjectFiles {
 		log.Infof("Inspecting project file: %s", project)
 		_, found := workspaceMap[project]
 
@@ -176,26 +247,149 @@ func DetectIOS() error {
 		}
 	}
 
+	projectPathOption := models.NewOptionModel(projectPathKey, projectPathTitle, projectPathEnvKey)
 	for _, project := range validProjects {
-		schemes := filterSchemes(fileList, project)
+		schemes, err := filterSchemes(detector.FileList, project)
+		if err != nil {
+			return []models.OptionModel{}, err
+		}
 
+		log.Infof("Schemes: %v", schemes)
 		if len(schemes) == 0 {
-			log.Infof("No shared scheme found")
+			log.Warn("No shared scheme found")
 			continue
 		}
 
-		configMap[project] = schemes
-	}
-	fmt.Println()
+		schemeOption := models.NewOptionModel(schemeKey, schemeTitle, schemeEnvKey)
+		for _, scheme := range schemes {
+			hasTest := scheme.HasTest
+			if hasTest {
+				detector.HasTest = true
+			}
 
-	// Log configurations
-	for path, configs := range configMap {
-		log.Infof("Configurations for %s", path)
-		for _, config := range configs {
-			log.Infof("  %s", config)
+			configOption := models.NewEmptyOptionModel()
+			configOption.AddValueMapItems(iOSConfigName(detector.HasPodFile, hasTest))
+
+			schemeOption.AddValueMapItems(scheme.Name, configOption)
 		}
-		fmt.Println()
+
+		projectPathOption.AddValueMapItems(project, schemeOption)
 	}
 
-	return nil
+	options := []models.OptionModel{
+		projectPathOption,
+	}
+
+	return options, nil
+}
+
+// Configs ...
+func (detector *Ios) Configs(isPrivate bool) map[string]bitriseModels.BitriseDataModel {
+	steps := []bitriseModels.StepListItemModel{}
+
+	// ActivateSSHKey
+	if isPrivate {
+		steps = append(steps, bitriseModels.StepListItemModel{
+			stepActivateSSHKeyIDComposite: stepmanModels.StepModel{},
+		})
+	}
+
+	// GitClone
+	steps = append(steps, bitriseModels.StepListItemModel{
+		stepGitCloneIDComposite: stepmanModels.StepModel{},
+	})
+
+	// CertificateAndProfileInstaller
+	steps = append(steps, bitriseModels.StepListItemModel{
+		stepCertificateAndProfileInstallerIDComposite: stepmanModels.StepModel{},
+	})
+
+	// CocoapodsInstall
+	if detector.HasPodFile {
+		steps = append(steps, bitriseModels.StepListItemModel{
+			stepCocoapodsInstallIDComposite: stepmanModels.StepModel{},
+		})
+	}
+
+	// XcodeTest
+	if detector.HasTest {
+		stepsWithTest := steps
+		inputs := []envmanModels.EnvironmentItemModel{
+			envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
+			envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
+		}
+
+		stepsWithTest = append(stepsWithTest, bitriseModels.StepListItemModel{
+			stepXcodeTestIDComposite: stepmanModels.StepModel{
+				Inputs: inputs,
+			},
+		})
+
+		// XcodeArchive
+		stepsWithTest = append(stepsWithTest, bitriseModels.StepListItemModel{
+			stepXcodeArchiveIDComposite: stepmanModels.StepModel{
+				Inputs: inputs,
+			},
+		})
+
+		// DeployToBitriseIo
+		stepsWithTest = append(stepsWithTest, bitriseModels.StepListItemModel{
+			stepDeployToBitriseIoIDComposite: stepmanModels.StepModel{},
+		})
+
+		workflows := map[string]bitriseModels.WorkflowModel{
+			"primary": bitriseModels.WorkflowModel{
+				Steps: stepsWithTest,
+			},
+		}
+
+		bitriseData := bitriseModels.BitriseDataModel{
+			Workflows:            workflows,
+			FormatVersion:        "1.1.0",
+			DefaultStepLibSource: "https://github.com/bitrise-io/bitrise-steplib.git",
+		}
+
+		configName := iOSConfigName(detector.HasPodFile, true)
+		bitriseDataMap := map[string]bitriseModels.BitriseDataModel{
+			configName: bitriseData,
+		}
+
+		return bitriseDataMap
+	}
+
+	// XcodeArchive
+	inputs := []envmanModels.EnvironmentItemModel{
+		envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
+		envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
+	}
+
+	steps = append(steps, bitriseModels.StepListItemModel{
+		stepXcodeArchiveIDComposite: stepmanModels.StepModel{
+			Inputs: inputs,
+		},
+	})
+
+	// DeployToBitriseIo
+	steps = append(steps, bitriseModels.StepListItemModel{
+		stepDeployToBitriseIoIDComposite: stepmanModels.StepModel{},
+	})
+
+	workflows := map[string]bitriseModels.WorkflowModel{
+		"primary": bitriseModels.WorkflowModel{
+			Steps: steps,
+		},
+	}
+
+	bitriseData := bitriseModels.BitriseDataModel{
+		Workflows:            workflows,
+		FormatVersion:        "1.1.0",
+		DefaultStepLibSource: "https://github.com/bitrise-io/bitrise-steplib.git",
+	}
+
+	configName := iOSConfigName(detector.HasPodFile, false)
+	bitriseDataMap := map[string]bitriseModels.BitriseDataModel{
+		configName: bitriseData,
+	}
+
+	return bitriseDataMap
 }

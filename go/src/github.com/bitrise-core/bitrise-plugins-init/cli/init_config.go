@@ -1,159 +1,249 @@
 package cli
 
 import (
-	"bytes"
 	"fmt"
 	"os"
-	"text/template"
+	"path"
+
+	"gopkg.in/yaml.v2"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/bitrise-core/bitrise-plugins-init/templates"
-	"github.com/bitrise-io/go-utils/colorstring"
+	"github.com/bitrise-core/bitrise-plugins-init/detectors"
+	"github.com/bitrise-core/bitrise-plugins-init/models"
+	bitriseModels "github.com/bitrise-io/bitrise/models"
+	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-io/goinp/goinp"
 	"github.com/codegangsta/cli"
 )
 
-// ConfigModel ...
-type ConfigModel struct {
-	FormatVersion string
-	AppTitle      string
-	DevBranch     string
-}
+const outputDir = "/Users/godrei/Develop/bitrise/plugins/bitrise-plugins-init/go/src/github.com/bitrise-core/bitrise-plugins-init/_tmp"
 
-const (
-	bitriseConfigFileName  = "bitrise.yml"
-	bitriseSecretsFileName = ".bitrise.secrets.yml"
-)
+func askForValue(option models.OptionModel) (string, string, error) {
+	optionValues := option.GetValues()
 
-func generateBitriseYMLContent(config ConfigModel) (string, error) {
-	bitriseConfigTemplate := template.New("bitrise_config")
-	bitriseConfigTemplate, err := bitriseConfigTemplate.Parse(templates.BitriseConfigTemplate)
-	if err != nil {
-		log.Fatalf("failed to parse bitrise config template, error: %#v", err)
-	}
-
-	var bitriseConfigBytes bytes.Buffer
-	err = bitriseConfigTemplate.Execute(&bitriseConfigBytes, config)
-	if err != nil {
-		return "", err
-	}
-
-	return bitriseConfigBytes.String(), nil
-}
-
-func saveSecretsToFile(pth, secretsStr string) (bool, error) {
-	if exists, err := pathutil.IsPathExists(pth); err != nil {
-		return false, err
-	} else if exists {
-		ask := fmt.Sprintf("A secrets file already exists at %s - do you want to overwrite it?", pth)
-		if val, err := goinp.AskForBool(ask); err != nil {
-			return false, err
-		} else if !val {
-			log.Infoln("Init canceled, existing file (" + pth + ") won't be overwritten.")
-			return false, nil
+	selectedValue := ""
+	if len(optionValues) == 1 {
+		selectedValue = optionValues[0]
+	} else {
+		question := fmt.Sprintf("Select: %s (%s)", option.Title, option.Key)
+		answer, err := goinp.SelectFromStrings(question, optionValues)
+		if err != nil {
+			return "", "", err
 		}
+
+		selectedValue = answer
 	}
 
-	if err := fileutil.WriteStringToFile(pth, secretsStr); err != nil {
-		return false, err
-	}
-	return true, nil
-}
-
-func addToGitignore(ignorePattern string) error {
-	return fileutil.AppendStringToFile(".gitignore", "\n"+ignorePattern+"\n")
+	return option.EnvKey, selectedValue, nil
 }
 
 func initConfig(c *cli.Context) {
-	bitriseSecretsFileRelPath := "./" + bitriseSecretsFileName
-	bitriseConfigFileRelPath := "./" + bitriseConfigFileName
+	searchDir := "./"
+	searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android"
+	searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods"
+	searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-xamarin-uitest"
+	// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-xamarin-android"
 
-	if exists, err := pathutil.IsPathExists(bitriseConfigFileRelPath); err != nil {
-		log.Fatalln("Error:", err)
-	} else if exists {
-		ask := fmt.Sprintf("A config file already exists at %s - do you want to overwrite it?", bitriseConfigFileRelPath)
-		if val, err := goinp.AskForBool(ask); err != nil {
-			log.Fatalln("Error:", err)
-		} else if !val {
-			log.Infoln("Init canceled, existing file won't be overwritten.")
-			os.Exit(0)
+	isCI := c.Bool("ci")
+	isPrivate := c.Bool("private")
+	log.Info("Configs:")
+	log.Infof(" ci: %v", isCI)
+	log.Infof(" private_repository: %v", isPrivate)
+	fmt.Println()
+
+	platformDetectors := []detectors.DetectorInterface{
+		new(detectors.Ios),
+		new(detectors.Android),
+		new(detectors.Xamarin),
+	}
+
+	optionsMap := map[string][]models.OptionModel{}
+	configsMap := map[string]map[string]bitriseModels.BitriseDataModel{}
+
+	// Run detectors
+	log.Infof("Running platform detectors:")
+	for _, detector := range platformDetectors {
+		detectorName := detector.Name()
+		fmt.Println()
+		log.Infof("  Detector: %s", detectorName)
+
+		detector.Configure(searchDir)
+
+		detected, err := detector.DetectPlatform()
+		if err != nil {
+			log.Fatalf("Detector failed, error: %s", err)
 		}
-	}
 
-	config := ConfigModel{
-		FormatVersion: "1.2.0",
-	}
+		if !detected {
+			log.Info("  Platform not detected")
+			continue
+		}
 
-	if val, err := goinp.AskForString("What's the BITRISE_APP_TITLE?"); err != nil {
-		log.Fatalln(err)
-	} else {
-		config.AppTitle = val
-	}
-	if val, err := goinp.AskForString("What's your development branch's name?"); err != nil {
-		log.Fatalln(err)
-	} else {
-		config.DevBranch = val
-	}
+		// Run analyzer
+		log.Infof("  Running analyzer:")
 
-	bitriseConfContent, err := generateBitriseYMLContent(config)
-	if err != nil {
-		log.Fatalf("Invalid Bitrise YML: %s", err)
-	}
+		options, err := detector.Analyze()
+		if err != nil {
+			log.Fatalf("Analyzer failed, error: %s", err)
+		}
 
-	if err := fileutil.WriteStringToFile(bitriseConfigFileRelPath, bitriseConfContent); err != nil {
-		log.Fatalln("Failed to init the bitrise config file:", err)
-	} else {
 		fmt.Println()
-		fmt.Println("# NOTES about the " + bitriseConfigFileName + " config file:")
+		log.Infof("  Analyze Result:")
+		bytes, err := yaml.Marshal(options)
+		if err != nil {
+			log.Fatalf("Failed to marshal options, err: %s", err)
+		}
+		fmt.Printf("%v\n", string(bytes))
+
+		optionsMap[detectorName] = options
+
+		// Generate configs
 		fmt.Println()
-		fmt.Println("We initialized a " + bitriseConfigFileName + " config file for you.")
-		fmt.Println("If you're in this folder you can use this config file")
-		fmt.Println(" with bitrise automatically, you don't have to")
-		fmt.Println(" specify it's path.")
-		fmt.Println()
+		log.Infof("  Generate configs:")
+		configs := detector.Configs(isPrivate)
+		for name, config := range configs {
+			fmt.Printf("name: %s\n", name)
+			bytes, err := yaml.Marshal(config)
+			if err != nil {
+				log.Fatalf("Failed to marshal options, err: %s", err)
+			}
+			fmt.Printf("%v\n", string(bytes))
+		}
+
+		configsMap[detectorName] = configs
 	}
 
-	bitriseSecretsContent := templates.BitriseSecretsTemplate
-	if initialized, err := saveSecretsToFile(bitriseSecretsFileRelPath, bitriseSecretsContent); err != nil {
-		log.Fatalln("Failed to init the secrets file:", err)
-	} else if initialized {
-		fmt.Println()
-		fmt.Println("# NOTES about the " + bitriseSecretsFileName + " secrets file:")
-		fmt.Println()
-		fmt.Println("We also created a " + bitriseSecretsFileName + " file")
-		fmt.Println(" in this directory, to keep your passwords, absolute path configurations")
-		fmt.Println(" and other secrets separate from your")
-		fmt.Println(" main configuration file.")
-		fmt.Println("This way you can safely commit and share your configuration file")
-		fmt.Println(" and ignore this secrets file, so nobody else will")
-		fmt.Println(" know about your secrets.")
-		fmt.Println(colorstring.Yellow("You should NEVER commit this secrets file into your repository!!"))
-		fmt.Println()
+	// Write Env Options & Workflows to file
+	if isCI {
+		for detectorName, options := range optionsMap {
+			platformOutputDir := path.Join(outputDir, detectorName)
+
+			if exist, err := pathutil.IsDirExists(platformOutputDir); err != nil {
+				log.Fatalf("Failed to check if path (%s) exis, err: %s", platformOutputDir, err)
+			} else if exist {
+				if err := os.RemoveAll(platformOutputDir); err != nil {
+					log.Fatalf("Failed to cleanup (%s), err: %s", platformOutputDir, err)
+				}
+			}
+
+			if err := os.MkdirAll(platformOutputDir, 0700); err != nil {
+				log.Fatalf("Failed to create (%s), err: %s", platformOutputDir, err)
+			}
+
+			// App Envs Options
+			optionsBytes, err := yaml.Marshal(options)
+			if err != nil {
+				log.Fatalf("Failed to marshal app envs, error: %s", err)
+			}
+
+			pth := path.Join(platformOutputDir, "app-envs.yml")
+			if err := fileutil.WriteBytesToFile(pth, optionsBytes); err != nil {
+				log.Fatalf("Failed to save app envs, err: %s", err)
+			}
+			log.Infof("app envs json saved to: %s", pth)
+
+			// Bitrise Configs
+			configMap := configsMap[detectorName]
+			for configName, config := range configMap {
+				configBytes, err := yaml.Marshal(config)
+				if err != nil {
+					log.Fatalf("Failed to marshal config, error: %#v", err)
+				}
+
+				pth = path.Join(platformOutputDir, configName)
+				if err := fileutil.WriteBytesToFile(pth, configBytes); err != nil {
+					log.Fatalf("Failed to save configs, err: %s", err)
+				}
+				log.Infof("bitrise.yml template saved to: %s", pth)
+			}
+		}
+
+		return
 	}
 
-	// add the general .bitrise* item
-	//  which will include both secret files like .bitrise.secrets.yml
-	//  and the .bitrise work temp dir
-	if err := addToGitignore(".bitrise*"); err != nil {
-		log.Fatalln("Failed to add .gitignore pattern. Error: ", err)
-	}
-	fmt.Println(colorstring.Green("For your convenience we added the pattern '.bitrise*' to your .gitignore file"))
-	fmt.Println(" to make it sure that no secrets or temporary work directories will be")
-	fmt.Println(" committed into your repository.")
+	// Collect app envs
+	for detectorName, options := range optionsMap {
+		platformOutputDir := path.Join(outputDir, detectorName)
 
-	fmt.Println()
-	fmt.Println("Hurray, you're good to go!")
-	fmt.Println("You can simply run:")
-	fmt.Println("-> bitrise run test")
-	fmt.Println("to test the sample configuration (which contains")
-	fmt.Println("an example workflow called 'test').")
-	fmt.Println()
-	fmt.Println("Once you tested this sample setup you can")
-	fmt.Println(" open the " + bitriseConfigFileName + " config file,")
-	fmt.Println(" modify it and then run a workflow with:")
-	fmt.Println("-> bitrise run YOUR-WORKFLOW-NAME")
-	fmt.Println(" or trigger a build with a pattern:")
-	fmt.Println("-> bitrise trigger YOUR/PATTERN")
+		if exist, err := pathutil.IsDirExists(platformOutputDir); err != nil {
+			log.Fatalf("Failed to check if path (%s) exis, err: %s", platformOutputDir, err)
+		} else if exist {
+			if err := os.RemoveAll(platformOutputDir); err != nil {
+				log.Fatalf("Failed to cleanup (%s), err: %s", platformOutputDir, err)
+			}
+		}
+
+		if err := os.MkdirAll(platformOutputDir, 0700); err != nil {
+			log.Fatalf("Failed to create (%s), err: %s", platformOutputDir, err)
+		}
+
+		configPth := ""
+		appEnvs := []envmanModels.EnvironmentItemModel{}
+
+		var walkWidth func(options []models.OptionModel)
+
+		walkDepth := func(option models.OptionModel) {
+			optionEnvKey, selectedValue, err := askForValue(option)
+			if err != nil {
+				log.Fatalf("Failed to ask for vale of key (%s), error: %s", option.Key, err)
+			}
+
+			if optionEnvKey == "" {
+				configPth = selectedValue
+			} else {
+				appEnvs = append(appEnvs, envmanModels.EnvironmentItemModel{
+					optionEnvKey: selectedValue,
+				})
+			}
+
+			nestedOptions := option.ValueMap[selectedValue]
+			if len(nestedOptions) == 0 {
+				return
+			}
+
+			walkWidth(nestedOptions)
+		}
+
+		walkWidth = func(options []models.OptionModel) {
+			for _, option := range options {
+				walkDepth(option)
+			}
+		}
+
+		walkWidth(options)
+
+		fmt.Println()
+		log.Infof("  Selected config: %s", configPth)
+		log.Infof("  Selected envs:")
+		aBytes, err := yaml.Marshal(appEnvs)
+		if err != nil {
+			log.Fatalf("Failed to marshal appEnvs, err: %s", err)
+		}
+		fmt.Printf("%v\n", string(aBytes))
+
+		configMap := configsMap[detectorName]
+		config := configMap[configPth]
+		config.App.Environments = appEnvs
+
+		log.Infof("  Selected config:")
+		aBytes, err = yaml.Marshal(config)
+		if err != nil {
+			log.Fatalf("Failed to marshal config, err: %s", err)
+		}
+		fmt.Printf("%v\n", string(aBytes))
+
+		// Write config to file
+		configBytes, err := yaml.Marshal(config)
+		if err != nil {
+			log.Fatalf("Failed to marshal config, error: %#v", err)
+		}
+
+		pth := path.Join(platformOutputDir, configPth)
+		if err := fileutil.WriteBytesToFile(pth, configBytes); err != nil {
+			log.Fatalf("Failed to save configs, err: %s", err)
+		}
+		log.Infof("bitrise.yml template saved to: %s", pth)
+	}
 }

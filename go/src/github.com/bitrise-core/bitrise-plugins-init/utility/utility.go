@@ -1,4 +1,4 @@
-package detectors
+package utility
 
 import (
 	"os"
@@ -6,7 +6,14 @@ import (
 	"strings"
 )
 
-func fileList(searchDir string) ([]string, error) {
+// CaseInsensitiveContains ...
+func CaseInsensitiveContains(s, substr string) bool {
+	s, substr = strings.ToUpper(s), strings.ToUpper(substr)
+	return strings.Contains(s, substr)
+}
+
+// FileList ...
+func FileList(searchDir string) ([]string, error) {
 	searchDir, err := filepath.Abs(searchDir)
 	if err != nil {
 		return []string{}, err
@@ -24,7 +31,8 @@ func fileList(searchDir string) ([]string, error) {
 	return fileList, nil
 }
 
-func filterFilesWithBasPaths(fileList []string, basePath ...string) []string {
+// FilterFilesWithBasPaths ...
+func FilterFilesWithBasPaths(fileList []string, basePath ...string) []string {
 	filteredFileList := []string{}
 
 	for _, file := range fileList {
@@ -41,7 +49,8 @@ func filterFilesWithBasPaths(fileList []string, basePath ...string) []string {
 	return filteredFileList
 }
 
-func filterFilesWithExtensions(fileList []string, extension ...string) []string {
+// FilterFilesWithExtensions ...
+func FilterFilesWithExtensions(fileList []string, extension ...string) []string {
 	filteredFileList := []string{}
 
 	for _, file := range fileList {
@@ -56,11 +65,6 @@ func filterFilesWithExtensions(fileList []string, extension ...string) []string 
 	}
 
 	return filteredFileList
-}
-
-func saseInsensitiveContains(s, substr string) bool {
-	s, substr = strings.ToUpper(s), strings.ToUpper(substr)
-	return strings.Contains(s, substr)
 }
 
 //--------------------------------------------------
