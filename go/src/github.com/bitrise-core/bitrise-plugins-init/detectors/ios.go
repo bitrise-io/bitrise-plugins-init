@@ -285,6 +285,7 @@ func (detector *Ios) Analyze() ([]models.OptionModel, error) {
 
 // Configs ...
 func (detector *Ios) Configs(isPrivate bool) map[string]bitriseModels.BitriseDataModel {
+	bitriseDataMap := map[string]bitriseModels.BitriseDataModel{}
 	steps := []bitriseModels.StepListItemModel{}
 
 	// ActivateSSHKey
@@ -313,13 +314,12 @@ func (detector *Ios) Configs(isPrivate bool) map[string]bitriseModels.BitriseDat
 
 	// XcodeTest
 	if detector.HasTest {
-		stepsWithTest := steps
 		inputs := []envmanModels.EnvironmentItemModel{
 			envmanModels.EnvironmentItemModel{projectPathKey: "$" + projectPathEnvKey},
 			envmanModels.EnvironmentItemModel{schemeKey: "$" + schemeEnvKey},
 		}
 
-		stepsWithTest = append(stepsWithTest, bitriseModels.StepListItemModel{
+		stepsWithTest := append(steps, bitriseModels.StepListItemModel{
 			stepXcodeTestIDComposite: stepmanModels.StepModel{
 				Inputs: inputs,
 			},
@@ -350,11 +350,7 @@ func (detector *Ios) Configs(isPrivate bool) map[string]bitriseModels.BitriseDat
 		}
 
 		configName := iOSConfigName(detector.HasPodFile, true)
-		bitriseDataMap := map[string]bitriseModels.BitriseDataModel{
-			configName: bitriseData,
-		}
-
-		return bitriseDataMap
+		bitriseDataMap[configName] = bitriseData
 	}
 
 	// XcodeArchive
@@ -387,9 +383,7 @@ func (detector *Ios) Configs(isPrivate bool) map[string]bitriseModels.BitriseDat
 	}
 
 	configName := iOSConfigName(detector.HasPodFile, false)
-	bitriseDataMap := map[string]bitriseModels.BitriseDataModel{
-		configName: bitriseData,
-	}
+	bitriseDataMap[configName] = bitriseData
 
 	return bitriseDataMap
 }

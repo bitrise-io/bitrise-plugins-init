@@ -44,7 +44,7 @@ func initConfig(c *cli.Context) {
 	searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android"
 	searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods"
 	searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-xamarin-uitest"
-	// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-xamarin-android"
+	searchDir = "/Users/godrei/Develop/bitrise/sample-apps/fastlane-example"
 
 	isCI := c.Bool("ci")
 	isPrivate := c.Bool("private")
@@ -54,9 +54,10 @@ func initConfig(c *cli.Context) {
 	fmt.Println()
 
 	platformDetectors := []detectors.DetectorInterface{
-		new(detectors.Ios),
-		new(detectors.Android),
-		new(detectors.Xamarin),
+		// new(detectors.Ios),
+		// new(detectors.Android),
+		// new(detectors.Xamarin),
+		new(detectors.Fastlane),
 	}
 
 	optionsMap := map[string][]models.OptionModel{}
