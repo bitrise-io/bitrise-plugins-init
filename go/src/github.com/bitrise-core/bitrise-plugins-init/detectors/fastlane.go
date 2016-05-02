@@ -10,8 +10,6 @@ import (
 	"sort"
 	"strings"
 
-	"gopkg.in/yaml.v2"
-
 	log "github.com/Sirupsen/logrus"
 	"github.com/bitrise-core/bitrise-plugins-init/models"
 	"github.com/bitrise-core/bitrise-plugins-init/utility"
@@ -154,12 +152,15 @@ func (detector *Fastlane) Analyze() ([]models.OptionModel, error) {
 			return []models.OptionModel{}, err
 		}
 
+		// Check if `Fastfile` is in `PROJECT_ROOT/fastlane/Fastfile`
+		// If no - generated fastlane step will require `work_dir` input too
 		relFastfile, err := filepath.Rel(detector.SearchDir, fastFile)
 		if err != nil {
 			return []models.OptionModel{}, err
 		}
 
 		relFastlaneDir := filepath.Dir(relFastfile)
+
 		if relFastlaneDir != "fastlane" {
 			detector.IsWorkDirSet = true
 
@@ -264,16 +265,6 @@ func (detector *Fastlane) Configs(isPrivate bool) map[string]bitriseModels.Bitri
 
 	configName := fastlaneConfigName(false)
 	bitriseDataMap[configName] = bitriseData
-
-	fmt.Println("")
-	fmt.Println("")
-	aBytes, err := yaml.Marshal(bitriseDataMap)
-	if err != nil {
-		log.Fatalf("Failed to marshal config, err: %s", err)
-	}
-	fmt.Printf("%v\n", string(aBytes))
-	fmt.Println("")
-	fmt.Println("")
 
 	return bitriseDataMap
 }

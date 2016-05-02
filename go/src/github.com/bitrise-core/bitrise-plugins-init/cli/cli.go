@@ -107,10 +107,9 @@ func Run() {
 			Usage:  "Generates a bitrise config files in the current directory.",
 			Action: initConfig,
 			Flags: []cli.Flag{
-				cli.BoolFlag{
-					Name:   "ci",
-					Usage:  "If true it indicates that we're used by another tool so don't require any user input!",
-					EnvVar: "CI",
+				cli.StringFlag{
+					Name:  "dir",
+					Usage: "Directory to scan.",
 				},
 				cli.BoolFlag{
 					Name:  "private",

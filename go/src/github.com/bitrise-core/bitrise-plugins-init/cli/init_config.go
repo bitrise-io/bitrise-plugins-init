@@ -10,8 +10,10 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/bitrise-core/bitrise-plugins-init/detectors"
 	"github.com/bitrise-core/bitrise-plugins-init/models"
+	"github.com/bitrise-core/bitrise-plugins-init/version"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
+	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-io/goinp/goinp"
@@ -40,38 +42,49 @@ func askForValue(option models.OptionModel) (string, string, error) {
 }
 
 func initConfig(c *cli.Context) {
-	searchDir := "./"
-	searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android"
-	searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods"
-	searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-xamarin-uitest"
-	searchDir = "/Users/godrei/Develop/bitrise/sample-apps/fastlane-example"
-
-	isCI := c.Bool("ci")
+	//
+	// Config
+	isCI := c.GlobalBool("ci")
 	isPrivate := c.Bool("private")
-	log.Info("Configs:")
-	log.Infof(" ci: %v", isCI)
-	log.Infof(" private_repository: %v", isPrivate)
-	fmt.Println()
-
-	platformDetectors := []detectors.DetectorInterface{
-		// new(detectors.Ios),
-		// new(detectors.Android),
-		// new(detectors.Xamarin),
-		new(detectors.Fastlane),
+	searchDir := c.String("dir")
+	if searchDir == "" {
+		searchDir = "./"
+		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android"
+		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods"
+		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-xamarin-uitest"
+		searchDir = "/Users/godrei/Develop/bitrise/sample-apps/fastlane-example"
 	}
 
+	fmt.Println()
+	log.Info(colorstring.Greenf("Running scanner v%s", version.VERSION))
+	fmt.Println()
+
+	if isCI {
+		log.Info(colorstring.Yellow("plugin runs in CI mode"))
+	}
+	if isPrivate {
+		log.Info(colorstring.Yellow("scanning private repository"))
+	}
+	log.Info(colorstring.Yellowf("scan dir: %s", searchDir))
+	fmt.Println()
+
+	//
+	// Scan
+	platformDetectors := []detectors.DetectorInterface{
+		new(detectors.Android),
+		new(detectors.Xamarin),
+		new(detectors.Ios),
+		new(detectors.Fastlane),
+	}
 	optionsMap := map[string][]models.OptionModel{}
 	configsMap := map[string]map[string]bitriseModels.BitriseDataModel{}
 
-	// Run detectors
-	log.Infof("Running platform detectors:")
+	log.Infof(colorstring.Blue("Running platform detectors:"))
 	for _, detector := range platformDetectors {
 		detectorName := detector.Name()
-		fmt.Println()
-		log.Infof("  Detector: %s", detectorName)
+		log.Infof("  Detector: %s", colorstring.Blue(detectorName))
 
 		detector.Configure(searchDir)
-
 		detected, err := detector.DetectPlatform()
 		if err != nil {
 			log.Fatalf("Detector failed, error: %s", err)
@@ -79,48 +92,60 @@ func initConfig(c *cli.Context) {
 
 		if !detected {
 			log.Info("  Platform not detected")
+			fmt.Println()
 			continue
 		}
 
-		// Run analyzer
-		log.Infof("  Running analyzer:")
+		log.Info("  Platform detected")
+		log.Info("  +----------------------------------------+")
+		log.Info("  |                                        |")
 
 		options, err := detector.Analyze()
 		if err != nil {
 			log.Fatalf("Analyzer failed, error: %s", err)
 		}
 
-		fmt.Println()
-		log.Infof("  Analyze Result:")
+		log.Debug()
+		log.Debug("Analyze result:")
 		bytes, err := yaml.Marshal(options)
 		if err != nil {
 			log.Fatalf("Failed to marshal options, err: %s", err)
 		}
-		fmt.Printf("%v\n", string(bytes))
+		log.Debugf("\n%v", string(bytes))
 
 		optionsMap[detectorName] = options
 
 		// Generate configs
-		fmt.Println()
-		log.Infof("  Generate configs:")
+		log.Debug()
+		log.Debug("Generated configs:")
 		configs := detector.Configs(isPrivate)
 		for name, config := range configs {
-			fmt.Printf("name: %s\n", name)
+			log.Debugf("  name: %s", name)
+
 			bytes, err := yaml.Marshal(config)
 			if err != nil {
 				log.Fatalf("Failed to marshal options, err: %s", err)
 			}
-			fmt.Printf("%v\n", string(bytes))
+			log.Debugf("\n%v", string(bytes))
 		}
 
 		configsMap[detectorName] = configs
+
+		log.Info("  |                                        |")
+		log.Info("  +----------------------------------------+")
+		fmt.Println()
 	}
 
-	// Write Env Options & Workflows to file
+	//
+	// Write output to files
 	if isCI {
-		for detectorName, options := range optionsMap {
-			platformOutputDir := path.Join(outputDir, detectorName)
+		log.Infof(colorstring.Blue("Saving outputs:"))
 
+		for detectorName, options := range optionsMap {
+			log.Infof("  Detector: %s", colorstring.Blue(detectorName))
+
+			// Init
+			platformOutputDir := path.Join(outputDir, detectorName)
 			if exist, err := pathutil.IsDirExists(platformOutputDir); err != nil {
 				log.Fatalf("Failed to check if path (%s) exis, err: %s", platformOutputDir, err)
 			} else if exist {
@@ -143,7 +168,7 @@ func initConfig(c *cli.Context) {
 			if err := fileutil.WriteBytesToFile(pth, optionsBytes); err != nil {
 				log.Fatalf("Failed to save app envs, err: %s", err)
 			}
-			log.Infof("app envs json saved to: %s", pth)
+			log.Infof("  app env options: %s", colorstring.Blue(pth))
 
 			// Bitrise Configs
 			configMap := configsMap[detectorName]
@@ -157,17 +182,24 @@ func initConfig(c *cli.Context) {
 				if err := fileutil.WriteBytesToFile(pth, configBytes); err != nil {
 					log.Fatalf("Failed to save configs, err: %s", err)
 				}
-				log.Infof("bitrise.yml template saved to: %s", pth)
+				log.Infof("  bitrise.yml template: %s", colorstring.Blue(pth))
 			}
+
+			fmt.Println()
 		}
 
 		return
 	}
 
-	// Collect app envs
-	for detectorName, options := range optionsMap {
-		platformOutputDir := path.Join(outputDir, detectorName)
+	//
+	// Select options
+	log.Infof(colorstring.Blue("Collecting inputs:"))
 
+	for detectorName, options := range optionsMap {
+		log.Infof("  Detector: %s", colorstring.Blue(detectorName))
+
+		// Init
+		platformOutputDir := path.Join(outputDir, detectorName)
 		if exist, err := pathutil.IsDirExists(platformOutputDir); err != nil {
 			log.Fatalf("Failed to check if path (%s) exis, err: %s", platformOutputDir, err)
 		} else if exist {
@@ -180,6 +212,7 @@ func initConfig(c *cli.Context) {
 			log.Fatalf("Failed to create (%s), err: %s", platformOutputDir, err)
 		}
 
+		// Collect inputs
 		configPth := ""
 		appEnvs := []envmanModels.EnvironmentItemModel{}
 
@@ -215,25 +248,26 @@ func initConfig(c *cli.Context) {
 
 		walkWidth(options)
 
-		fmt.Println()
-		log.Infof("  Selected config: %s", configPth)
-		log.Infof("  Selected envs:")
+		log.Debug()
+		log.Debug("Selected app envs:")
 		aBytes, err := yaml.Marshal(appEnvs)
 		if err != nil {
 			log.Fatalf("Failed to marshal appEnvs, err: %s", err)
 		}
-		fmt.Printf("%v\n", string(aBytes))
+		log.Debugf("\n%v", string(aBytes))
 
 		configMap := configsMap[detectorName]
 		config := configMap[configPth]
 		config.App.Environments = appEnvs
 
-		log.Infof("  Selected config:")
+		log.Debug()
+		log.Debug("Config:")
+		log.Debugf("  name: %s", configPth)
 		aBytes, err = yaml.Marshal(config)
 		if err != nil {
 			log.Fatalf("Failed to marshal config, err: %s", err)
 		}
-		fmt.Printf("%v\n", string(aBytes))
+		log.Debugf("\n%v", string(aBytes))
 
 		// Write config to file
 		configBytes, err := yaml.Marshal(config)
@@ -245,6 +279,7 @@ func initConfig(c *cli.Context) {
 		if err := fileutil.WriteBytesToFile(pth, configBytes); err != nil {
 			log.Fatalf("Failed to save configs, err: %s", err)
 		}
-		log.Infof("bitrise.yml template saved to: %s", pth)
+		log.Infof("  bitrise.yml template: %s", colorstring.Blue(pth))
+		fmt.Println()
 	}
 }
