@@ -22,14 +22,10 @@ const (
 )
 
 const (
-	// XcodeprojExtension ...
-	XcodeprojExtension = ".xcodeproj"
-	// XcworkspaceExtension ...
-	XcworkspaceExtension = ".xcworkspace"
-	// PodFileBasePath ...
-	PodFileBasePath = "Podfile"
-	// SchemeFileExtension ...
-	SchemeFileExtension = ".xcscheme"
+	xcodeprojExtension   = ".xcodeproj"
+	xcworkspaceExtension = ".xcworkspace"
+	podFileBasePath      = "Podfile"
+	schemeFileExtension  = ".xcscheme"
 )
 
 const (
@@ -57,7 +53,7 @@ type SchemeModel struct {
 //--------------------------------------------------
 
 func filterXcodeprojectFiles(fileList []string) []string {
-	filteredFiles := utility.FilterFilesWithExtensions(fileList, XcodeprojExtension, XcworkspaceExtension)
+	filteredFiles := utility.FilterFilesWithExtensions(fileList, xcodeprojExtension, xcworkspaceExtension)
 
 	relevantFiles := []string{}
 	workspaceEmbeddedInProjectExp := regexp.MustCompile(`.+.xcodeproj/.+.xcworkspace`)
@@ -83,7 +79,7 @@ func filterXcodeprojectFiles(fileList []string) []string {
 }
 
 func filterPodFiles(fileList []string) []string {
-	filteredFiles := utility.FilterFilesWithBasPaths(fileList, PodFileBasePath)
+	filteredFiles := utility.FilterFilesWithBasPaths(fileList, podFileBasePath)
 	relevantFiles := []string{}
 
 	for _, file := range filteredFiles {
@@ -124,7 +120,7 @@ func hasTest(schemeFile string) (bool, error) {
 }
 
 func filterSchemes(fileList []string, project string) ([]SchemeModel, error) {
-	filteredFiles := utility.FilterFilesWithExtensions(fileList, SchemeFileExtension)
+	filteredFiles := utility.FilterFilesWithExtensions(fileList, schemeFileExtension)
 	projectScharedSchemesDir := path.Join(project, "xcshareddata/xcschemes/")
 
 	schemeFiles := []string{}
@@ -161,7 +157,7 @@ func iOSConfigName(hasPodfile, hasTest bool) string {
 	if hasTest {
 		name = name + "test-"
 	}
-	return name + "config.yml"
+	return name + "config.json"
 }
 
 //--------------------------------------------------

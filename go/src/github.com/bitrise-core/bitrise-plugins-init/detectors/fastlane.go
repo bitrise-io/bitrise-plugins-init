@@ -101,7 +101,7 @@ func fastlaneConfigName(isWorkDirSet bool) string {
 	if isWorkDirSet {
 		name = name + "workdir-"
 	}
-	return name + "config.yml"
+	return name + "config.json"
 }
 
 //--------------------------------------------------

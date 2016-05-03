@@ -34,7 +34,7 @@ const (
 	// IncludeXamarinIosAPIPattern ...
 	IncludeXamarinIosAPIPattern = `Include="Xamarin.iOS"`
 	// IncludeMonoAndroidAPIPattern ...
-	IncludeMonoAndroidAPIPattern = `Include="Mono.Android`
+	IncludeMonoAndroidAPIPattern = `Include="Mono.Android"`
 
 	// MonoTouchAPI ...
 	MonoTouchAPI = "monotouch"
@@ -174,7 +174,7 @@ func xamarinConfigName(hasNugetPackages, hasXamarinComponents bool) string {
 	if hasXamarinComponents {
 		name = name + "components-"
 	}
-	return name + "config.yml"
+	return name + "config.json"
 }
 
 //--------------------------------------------------

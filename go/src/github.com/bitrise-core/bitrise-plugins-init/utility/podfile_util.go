@@ -158,7 +158,7 @@ const podfileRubyFileContent = `class Podfile
 end
 `
 
-const getWorkspacesRubyFileConent = `require_relative 'podfile'
+const getWorkspacesRubyFileContent = `require_relative 'podfile'
 require 'json'
 
 path = ENV['pod_file_path']
@@ -182,7 +182,7 @@ func GetWorkspaces() (map[string]string, error) {
 	}
 
 	getWorkspacesRubyFilePath := path.Join(tmpDir, "get_workspace.rb")
-	if err := fileutil.WriteStringToFile(getWorkspacesRubyFilePath, getWorkspacesRubyFileConent); err != nil {
+	if err := fileutil.WriteStringToFile(getWorkspacesRubyFilePath, getWorkspacesRubyFileContent); err != nil {
 		return map[string]string{}, err
 	}
 

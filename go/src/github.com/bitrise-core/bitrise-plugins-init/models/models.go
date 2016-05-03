@@ -26,7 +26,6 @@ type OptionModel struct {
 	EnvKey string `json:"env_key,omitempty"  yaml:"env_key,omitempty"`
 
 	ValueMap OptionValueMap `json:"value_map,omitempty"  yaml:"value_map,omitempty"`
-	Config   string         `json:"config,omitempty"  yaml:"config,omitempty"`
 }
 
 // NewOptionModel ...
@@ -61,69 +60,4 @@ func (option OptionModel) GetValues() []string {
 		values = append(values, value)
 	}
 	return values
-}
-
-// NestedOptions ...
-func (option OptionModel) NestedOptions() []OptionModel {
-	options := []OptionModel{}
-	for _, option := range option.ValueMap {
-		options = append(options, option...)
-	}
-	return options
-}
-
-// GetAllKeys ...
-func (option OptionModel) GetAllKeys() []string {
-	keyMap := map[string]bool{}
-
-	var walkWidth func([]OptionModel)
-
-	walkDepth := func(anOption OptionModel) {
-		keyMap[anOption.EnvKey] = true
-
-		walkWidth(anOption.NestedOptions())
-	}
-
-	walkWidth = func(options []OptionModel) {
-		for _, option := range options {
-			walkDepth(option)
-		}
-	}
-
-	walkWidth([]OptionModel{option})
-
-	keys := []string{}
-	for key := range keyMap {
-		keys = append(keys, key)
-	}
-
-	return keys
-}
-
-// GetAllKeys ...
-func GetAllKeys(options []OptionModel) []string {
-	keyMap := map[string]bool{}
-
-	var walkWidth func([]OptionModel)
-
-	walkDepth := func(anOption OptionModel) {
-		keyMap[anOption.EnvKey] = true
-
-		walkWidth(anOption.NestedOptions())
-	}
-
-	walkWidth = func(options []OptionModel) {
-		for _, option := range options {
-			walkDepth(option)
-		}
-	}
-
-	walkWidth(options)
-
-	keys := []string{}
-	for key := range keyMap {
-		keys = append(keys, key)
-	}
-
-	return keys
 }

@@ -98,7 +98,7 @@ func androidConfigName(hasGradlew bool) string {
 	if hasGradlew {
 		name = name + "gradlew-"
 	}
-	return name + "config.yml"
+	return name + "config.json"
 }
 
 //--------------------------------------------------
