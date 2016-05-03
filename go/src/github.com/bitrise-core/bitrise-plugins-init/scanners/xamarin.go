@@ -1,10 +1,11 @@
-package detectors
+package scanners
 
 import (
 	"fmt"
 	"path"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
@@ -22,26 +23,17 @@ const (
 )
 
 const (
-	// SolutionExtension ...
-	SolutionExtension = ".sln"
-	// SolutionConfigurationStart ...
-	SolutionConfigurationStart = "GlobalSection(SolutionConfigurationPlatforms) = preSolution"
-	// SolutionConfigurationEnd ...
-	SolutionConfigurationEnd = "EndGlobalSection"
+	solutionExtension          = ".sln"
+	solutionConfigurationStart = "GlobalSection(SolutionConfigurationPlatforms) = preSolution"
+	solutionConfigurationEnd   = "EndGlobalSection"
 
-	// IncludeMonoTouchAPIPattern ...
-	IncludeMonoTouchAPIPattern = `Include="monotouch"`
-	// IncludeXamarinIosAPIPattern ...
-	IncludeXamarinIosAPIPattern = `Include="Xamarin.iOS"`
-	// IncludeMonoAndroidAPIPattern ...
-	IncludeMonoAndroidAPIPattern = `Include="Mono.Android"`
+	includemonoTouchAPIPattern   = `Include="monotouch"`
+	includeXamarinIosAPIPattern  = `Include="Xamarin.iOS"`
+	includeMonoAndroidAPIPattern = `Include="Mono.Android"`
 
-	// MonoTouchAPI ...
-	MonoTouchAPI = "monotouch"
-	// XamarinIosAPI ...
-	XamarinIosAPI = "Xamarin.iOS"
-	// MonoAndroidAPI ...
-	MonoAndroidAPI = "Mono.Android"
+	monoTouchAPI   = "monotouch"
+	xamarinIosAPI  = "Xamarin.iOS"
+	monoAndroidAPI = "Mono.Android"
 )
 
 const (
@@ -78,7 +70,9 @@ const (
 //--------------------------------------------------
 
 func filterSolutionFiles(fileList []string) []string {
-	return utility.FilterFilesWithExtensions(fileList, SolutionExtension)
+	files := utility.FilterFilesWithExtensions(fileList, solutionExtension)
+	sort.Sort(utility.ByComponents(files))
+	return files
 }
 
 func getSolutionConfigs(solutionFile string) (map[string][]string, error) {
@@ -92,12 +86,12 @@ func getSolutionConfigs(solutionFile string) (map[string][]string, error) {
 
 	lines := strings.Split(content, "\n")
 	for _, line := range lines {
-		if strings.Contains(line, SolutionConfigurationStart) {
+		if strings.Contains(line, solutionConfigurationStart) {
 			isNextLineScheme = true
 			continue
 		}
 
-		if strings.Contains(line, SolutionConfigurationEnd) {
+		if strings.Contains(line, solutionConfigurationEnd) {
 			isNextLineScheme = false
 			continue
 		}
@@ -132,12 +126,12 @@ func getProjectPlatformAPI(projectFile string) (string, error) {
 		return "", err
 	}
 
-	if utility.CaseInsensitiveContains(content, IncludeMonoAndroidAPIPattern) {
-		return MonoAndroidAPI, nil
-	} else if utility.CaseInsensitiveContains(content, IncludeMonoTouchAPIPattern) {
-		return MonoTouchAPI, nil
-	} else if utility.CaseInsensitiveContains(content, IncludeXamarinIosAPIPattern) {
-		return XamarinIosAPI, nil
+	if utility.CaseInsensitiveContains(content, includeMonoAndroidAPIPattern) {
+		return monoAndroidAPI, nil
+	} else if utility.CaseInsensitiveContains(content, includemonoTouchAPIPattern) {
+		return monoTouchAPI, nil
+	} else if utility.CaseInsensitiveContains(content, includeXamarinIosAPIPattern) {
+		return xamarinIosAPI, nil
 	}
 
 	return "", nil

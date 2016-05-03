@@ -1,4 +1,4 @@
-package detectors
+package scanners
 
 import (
 	"bufio"
@@ -7,6 +7,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
@@ -75,6 +76,8 @@ func filterXcodeprojectFiles(fileList []string) []string {
 		}
 	}
 
+	sort.Sort(utility.ByComponents(relevantFiles))
+
 	return relevantFiles
 }
 
@@ -87,6 +90,8 @@ func filterPodFiles(fileList []string) []string {
 			relevantFiles = append(relevantFiles, file)
 		}
 	}
+
+	sort.Sort(utility.ByComponents(relevantFiles))
 
 	return relevantFiles
 }
@@ -119,7 +124,7 @@ func hasTest(schemeFile string) (bool, error) {
 	return false, nil
 }
 
-func filterSchemes(fileList []string, project string) ([]SchemeModel, error) {
+func filterSharedSchemes(fileList []string, project string) ([]SchemeModel, error) {
 	filteredFiles := utility.FilterFilesWithExtensions(fileList, schemeFileExtension)
 	projectScharedSchemesDir := path.Join(project, "xcshareddata/xcschemes/")
 
@@ -245,7 +250,7 @@ func (detector *Ios) Analyze() ([]models.OptionModel, error) {
 
 	projectPathOption := models.NewOptionModel(projectPathKey, projectPathTitle, projectPathEnvKey)
 	for _, project := range validProjects {
-		schemes, err := filterSchemes(detector.FileList, project)
+		schemes, err := filterSharedSchemes(detector.FileList, project)
 		if err != nil {
 			return []models.OptionModel{}, err
 		}

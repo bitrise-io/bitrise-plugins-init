@@ -1,4 +1,4 @@
-package detectors
+package scanners
 
 import (
 	"bytes"

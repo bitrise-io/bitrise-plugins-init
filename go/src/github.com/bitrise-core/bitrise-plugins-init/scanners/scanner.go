@@ -1,4 +1,4 @@
-package detectors
+package scanners
 
 import (
 	"github.com/bitrise-core/bitrise-plugins-init/models"
@@ -12,8 +12,8 @@ const (
 	stepDeployToBitriseIoIDComposite              = "deploy-to-bitrise-io@1.2.2"
 )
 
-// DetectorInterface ...
-type DetectorInterface interface {
+// ScannerInterface ...
+type ScannerInterface interface {
 	Name() string
 	Configure(searchDir string)
 	DetectPlatform() (bool, error)

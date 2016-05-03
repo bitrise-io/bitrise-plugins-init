@@ -10,8 +10,8 @@ import (
 	"gopkg.in/yaml.v2"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/bitrise-core/bitrise-plugins-init/detectors"
 	"github.com/bitrise-core/bitrise-plugins-init/models"
+	"github.com/bitrise-core/bitrise-plugins-init/scanners"
 	"github.com/bitrise-core/bitrise-plugins-init/version"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
@@ -72,11 +72,11 @@ func initConfig(c *cli.Context) {
 
 	//
 	// Scan
-	platformDetectors := []detectors.DetectorInterface{
-		new(detectors.Android),
-		new(detectors.Xamarin),
-		new(detectors.Ios),
-		new(detectors.Fastlane),
+	platformDetectors := []scanners.ScannerInterface{
+		new(scanners.Android),
+		new(scanners.Xamarin),
+		new(scanners.Ios),
+		new(scanners.Fastlane),
 	}
 	optionsMap := map[string][]models.OptionModel{}
 	configsMap := map[string]map[string]bitriseModels.BitriseDataModel{}
