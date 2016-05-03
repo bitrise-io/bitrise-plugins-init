@@ -183,7 +183,7 @@ func (detector *Android) Analyze() ([]models.OptionModel, error) {
 		gradleTaskOption := models.NewOptionModel(gradleTaskKey, gradleTaskTitle, gradleTaskEnvKey)
 		for _, config := range configs {
 			configOption := models.NewEmptyOptionModel()
-			configOption.AddValueMapItems(androidConfigName(detector.HasGradlewFile))
+			configOption.Config = androidConfigName(detector.HasGradlewFile)
 
 			gradleTaskOption.AddValueMapItems(config, configOption)
 		}

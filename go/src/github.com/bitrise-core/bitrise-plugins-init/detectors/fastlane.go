@@ -165,7 +165,7 @@ func (detector *Fastlane) Analyze() ([]models.OptionModel, error) {
 			detector.IsWorkDirSet = true
 
 			configOption := models.NewEmptyOptionModel()
-			configOption.AddValueMapItems(fastlaneConfigName(true))
+			configOption.Config = fastlaneConfigName(true)
 
 			laneOption := models.NewOptionModel(laneKey, laneTitle, laneEnvKey)
 			for _, lane := range lanes {
@@ -180,7 +180,7 @@ func (detector *Fastlane) Analyze() ([]models.OptionModel, error) {
 			options = append(options, workDirOption)
 		} else {
 			configOption := models.NewEmptyOptionModel()
-			configOption.AddValueMapItems(fastlaneConfigName(false))
+			configOption.Config = fastlaneConfigName(false)
 
 			laneOption := models.NewOptionModel(laneKey, laneTitle, laneEnvKey)
 			for _, lane := range lanes {

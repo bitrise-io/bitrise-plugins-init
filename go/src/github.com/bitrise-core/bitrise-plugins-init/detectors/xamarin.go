@@ -284,7 +284,7 @@ func (detector *Xamarin) Analyze() ([]models.OptionModel, error) {
 			xamarinPlatformOption := models.NewOptionModel(xamarinPlatformKey, xamarinPlatformTitle, xamarinPlatformEnvKey)
 			for _, platform := range platforms {
 				configOption := models.NewEmptyOptionModel()
-				configOption.AddValueMapItems(xamarinConfigName(detector.HasNugetPackages, detector.HasXamarinComponents))
+				configOption.Config = xamarinConfigName(detector.HasNugetPackages, detector.HasXamarinComponents)
 
 				xamarinPlatformOption.AddValueMapItems(platform, configOption)
 			}

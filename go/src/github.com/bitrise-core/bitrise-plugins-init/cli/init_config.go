@@ -143,52 +143,26 @@ func initConfig(c *cli.Context) {
 	if isCI {
 		log.Infof(colorstring.Blue("Saving outputs:"))
 
-		for detectorName, options := range optionsMap {
-			log.Infof("  Scanner: %s", colorstring.Blue(detectorName))
-
-			// Init
-			platformOutputDir := path.Join(outputDir, detectorName)
-			if exist, err := pathutil.IsDirExists(platformOutputDir); err != nil {
-				log.Fatalf("Failed to check if path (%s) exis, err: %s", platformOutputDir, err)
-			} else if exist {
-				if err := os.RemoveAll(platformOutputDir); err != nil {
-					log.Fatalf("Failed to cleanup (%s), err: %s", platformOutputDir, err)
-				}
-			}
-
-			if err := os.MkdirAll(platformOutputDir, 0700); err != nil {
-				log.Fatalf("Failed to create (%s), err: %s", platformOutputDir, err)
-			}
-
-			// App Envs Options
-			optionsBytes, err := json.Marshal(options)
-			if err != nil {
-				log.Fatalf("Failed to marshal app envs, error: %s", err)
-			}
-
-			pth := path.Join(platformOutputDir, "app-envs.json")
-			if err := fileutil.WriteBytesToFile(pth, optionsBytes); err != nil {
-				log.Fatalf("Failed to save app envs, err: %s", err)
-			}
-			log.Infof("  app env options: %s", colorstring.Blue(pth))
-
-			// Bitrise Configs
-			configMap := configsMap[detectorName]
-			for configName, config := range configMap {
-				configBytes, err := json.Marshal(config)
-				if err != nil {
-					log.Fatalf("Failed to marshal config, error: %#v", err)
-				}
-
-				pth = path.Join(platformOutputDir, configName)
-				if err := fileutil.WriteBytesToFile(pth, configBytes); err != nil {
-					log.Fatalf("Failed to save configs, err: %s", err)
-				}
-				log.Infof("  bitrise.json template: %s", colorstring.Blue(pth))
-			}
-
-			fmt.Println()
+		scanResult := models.ScanResultModel{
+			OptionsMap: optionsMap,
+			ConfigsMap: configsMap,
 		}
+
+		if err := os.MkdirAll(outputDir, 0700); err != nil {
+			log.Fatalf("Failed to create (%s), err: %s", outputDir, err)
+		}
+
+		pth := path.Join(outputDir, "result.json")
+
+		scanResultBytes, err := json.MarshalIndent(scanResult, "", "\t")
+		if err != nil {
+			log.Fatalf("Failed to marshal scan result, error: %s", err)
+		}
+
+		if err := fileutil.WriteBytesToFile(pth, scanResultBytes); err != nil {
+			log.Fatalf("Failed to save scan result, err: %s", err)
+		}
+		log.Infof("  scan result: %s", colorstring.Blue(pth))
 
 		return
 	}

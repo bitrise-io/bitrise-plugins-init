@@ -1,7 +1,14 @@
 package models
 
-// ------------------------------
-// Step Analyzer Interface Models
+import (
+	bitriseModels "github.com/bitrise-io/bitrise/models"
+)
+
+// ScanResultModel ...
+type ScanResultModel struct {
+	OptionsMap map[string][]OptionModel                             `json:"options,omitempty" yaml:"options,omitempty"`
+	ConfigsMap map[string]map[string]bitriseModels.BitriseDataModel `json:"configs,omitempty" yaml:"configs,omitempty"`
+}
 
 /*
 - key: project_path
@@ -26,6 +33,7 @@ type OptionModel struct {
 	EnvKey string `json:"env_key,omitempty"  yaml:"env_key,omitempty"`
 
 	ValueMap OptionValueMap `json:"value_map,omitempty"  yaml:"value_map,omitempty"`
+	Config   string         `json:"config,omitempty"  yaml:"config,omitempty"`
 }
 
 // NewOptionModel ...
