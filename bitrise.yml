@@ -4,8 +4,8 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 app:
   envs:
   - PLUGIN_NAME: init
-  - PLUGIN_GO_PATH: "./go/src/github.com/bitrise-core/bitrise-plugins-init"
-  - VERSION_FILE_PATH: "./go/src/github.com/bitrise-core/bitrise-plugins-init/version/version.go"
+  - PLUGIN_GO_PATH: "./go/src/github.com/bitrise-core/bitrise-init"
+  - VERSION_FILE_PATH: "./go/src/github.com/bitrise-core/bitrise-init/version/version.go"
 
 workflows:
   # ----------------------------------------------------------------
@@ -16,7 +16,8 @@ workflows:
         title: "Go Test"
         inputs:
         - working_dir: $PLUGIN_GO_PATH
-        - content: go test ./...
+        - content: |
+            go test ./...
 
   create-bin:
     steps:
