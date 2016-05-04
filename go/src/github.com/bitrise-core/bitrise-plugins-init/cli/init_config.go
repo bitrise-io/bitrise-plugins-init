@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 
 	"encoding/json"
 
@@ -21,8 +22,6 @@ import (
 	"github.com/bitrise-io/goinp/goinp"
 	"github.com/codegangsta/cli"
 )
-
-const outputDir = "/Users/godrei/Develop/bitrise/plugins/bitrise-plugins-init/go/src/github.com/bitrise-core/bitrise-plugins-init/_tmp"
 
 func askForValue(option models.OptionModel) (string, string, error) {
 	optionValues := option.GetValues()
@@ -49,12 +48,23 @@ func initConfig(c *cli.Context) {
 	isCI := c.GlobalBool("ci")
 	isPrivate := c.Bool("private")
 	searchDir := c.String("dir")
+	outputDir := c.String("output-dir")
+
+	currentDir, err := pathutil.AbsPath("./")
+	if err != nil {
+		log.Fatalf("Failed to get current directory, error: %s", err)
+	}
+
 	if searchDir == "" {
-		searchDir = "./"
+		searchDir = currentDir
 		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods"
 		searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android"
 		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-xamarin-uitest"
 		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/fastlane-example"
+	}
+
+	if outputDir == "" {
+		outputDir = filepath.Join(currentDir, "scan_result")
 	}
 
 	fmt.Println()
@@ -68,6 +78,7 @@ func initConfig(c *cli.Context) {
 		log.Info(colorstring.Yellow("scanning private repository"))
 	}
 	log.Info(colorstring.Yellowf("scan dir: %s", searchDir))
+	log.Info(colorstring.Yellowf("output dir: %s", outputDir))
 	fmt.Println()
 
 	//
@@ -99,8 +110,8 @@ func initConfig(c *cli.Context) {
 		}
 
 		log.Info("  Platform detected")
-		log.Info("  +----------------------------------------+")
-		log.Info("  |                                        |")
+		log.Info("  +------------------------------------------------------------------------------+")
+		log.Info("  |                                                                              |")
 
 		options, err := detector.Analyze()
 		if err != nil {
@@ -133,8 +144,8 @@ func initConfig(c *cli.Context) {
 
 		configsMap[detectorName] = configs
 
-		log.Info("  |                                        |")
-		log.Info("  +----------------------------------------+")
+		log.Info("  |                                                                              |")
+		log.Info("  +------------------------------------------------------------------------------+")
 		fmt.Println()
 	}
 
@@ -246,16 +257,16 @@ func initConfig(c *cli.Context) {
 		log.Debugf("\n%v", string(aBytes))
 
 		// Write config to file
-		configBytes, err := json.Marshal(config)
+		configBytes, err := yaml.Marshal(config)
 		if err != nil {
 			log.Fatalf("Failed to marshal config, error: %#v", err)
 		}
 
-		pth := path.Join(platformOutputDir, configPth)
+		pth := path.Join(platformOutputDir, configPth+".yml")
 		if err := fileutil.WriteBytesToFile(pth, configBytes); err != nil {
 			log.Fatalf("Failed to save configs, err: %s", err)
 		}
-		log.Infof("  bitrise.json template: %s", colorstring.Blue(pth))
+		log.Infof("  bitrise.yml template: %s", colorstring.Blue(pth))
 		fmt.Println()
 	}
 }

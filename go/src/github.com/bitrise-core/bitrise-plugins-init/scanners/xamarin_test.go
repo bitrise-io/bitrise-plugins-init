@@ -35,19 +35,6 @@ func TestFilterSolutionFiles(t *testing.T) {
 	}
 }
 
-/*
-func xamarinConfigName(hasNugetPackages, hasXamarinComponents bool) string {
-	name := "xamarin-"
-	if hasNugetPackages {
-		name = name + "nuget-"
-	}
-	if hasXamarinComponents {
-		name = name + "components-"
-	}
-	return name + "config.json"
-}
-*/
-
 func TestXamarinConfigName(t *testing.T) {
 	require.Equal(t, "xamarin-config.json", xamarinConfigName(false, false))
 	require.Equal(t, "xamarin-nuget-config.json", xamarinConfigName(true, false))

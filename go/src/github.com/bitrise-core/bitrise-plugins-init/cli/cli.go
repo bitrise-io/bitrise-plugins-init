@@ -111,6 +111,10 @@ func Run() {
 					Name:  "dir",
 					Usage: "Directory to scan.",
 				},
+				cli.StringFlag{
+					Name:  "output-dir",
+					Usage: "Directory to save scan results.",
+				},
 				cli.BoolFlag{
 					Name:  "private",
 					Usage: "If true it indicates that source repository is private!",

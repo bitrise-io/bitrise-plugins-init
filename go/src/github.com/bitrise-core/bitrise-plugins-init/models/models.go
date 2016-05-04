@@ -63,6 +63,10 @@ func (option *OptionModel) AddValueMapItems(value string, options ...OptionModel
 
 // GetValues ...
 func (option OptionModel) GetValues() []string {
+	if option.Config != "" {
+		return []string{option.Config}
+	}
+
 	values := []string{}
 	for value := range option.ValueMap {
 		values = append(values, value)

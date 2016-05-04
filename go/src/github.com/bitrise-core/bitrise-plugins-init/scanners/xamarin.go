@@ -168,7 +168,7 @@ func xamarinConfigName(hasNugetPackages, hasXamarinComponents bool) string {
 	if hasXamarinComponents {
 		name = name + "components-"
 	}
-	return name + "config.json"
+	return name + "config"
 }
 
 //--------------------------------------------------

@@ -162,7 +162,7 @@ func iOSConfigName(hasPodfile, hasTest bool) string {
 	if hasTest {
 		name = name + "test-"
 	}
-	return name + "config.json"
+	return name + "config"
 }
 
 //--------------------------------------------------
