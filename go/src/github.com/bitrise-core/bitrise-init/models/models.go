@@ -4,31 +4,47 @@ import (
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 )
 
-// ScanResultModel ...
-type ScanResultModel struct {
-	OptionsMap map[string][]OptionModel                             `json:"options,omitempty" yaml:"options,omitempty"`
-	ConfigsMap map[string]map[string]bitriseModels.BitriseDataModel `json:"configs,omitempty" yaml:"configs,omitempty"`
+const (
+	primaryWorkflowID = "primary"
+)
+
+// BitriseDataWithPrimaryWorkflowSteps ...
+func BitriseDataWithPrimaryWorkflowSteps(steps []bitriseModels.StepListItemModel) bitriseModels.BitriseDataModel {
+	workflows := map[string]bitriseModels.WorkflowModel{
+		primaryWorkflowID: bitriseModels.WorkflowModel{
+			Steps: steps,
+		},
+	}
+
+	triggerMap := []bitriseModels.TriggerMapItemModel{
+		bitriseModels.TriggerMapItemModel{
+			Pattern:              "*",
+			IsPullRequestAllowed: true,
+			WorkflowID:           primaryWorkflowID,
+		},
+	}
+
+	bitriseData := bitriseModels.BitriseDataModel{
+		FormatVersion:        "1.2.0",
+		DefaultStepLibSource: "https://github.com/bitrise-io/bitrise-steplib.git",
+		TriggerMap:           triggerMap,
+		Workflows:            workflows,
+	}
+
+	return bitriseData
 }
 
-/*
-- key: project_path
-  title: Project (or Workspace) path
-  envkey: BITRISE_PROJECT_PATH
-  valuemap:
-    ~/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods/SampleAppWithCocoapods/SampleAppWithCocoapods.xcodeproj:
-    - key: scheme
-      title: Scheme name
-      envkey: BITRISE_SCHEME
-      valuemap:
-        SampleAppWithCocoapods: []
-*/
+// ScanResultModel ...
+type ScanResultModel struct {
+	OptionMap  map[string]OptionModel       `json:"options,omitempty" yaml:"options,omitempty"`
+	ConfigsMap map[string]map[string]string `json:"configs,omitempty" yaml:"configs,omitempty"`
+}
 
 // OptionValueMap ...
-type OptionValueMap map[string][]OptionModel
+type OptionValueMap map[string]OptionModel
 
 // OptionModel ...
 type OptionModel struct {
-	Key    string `json:"key,omitempty" yaml:"key,omitempty"`
 	Title  string `json:"title,omitempty"  yaml:"title,omitempty"`
 	EnvKey string `json:"env_key,omitempty"  yaml:"env_key,omitempty"`
 
@@ -37,9 +53,8 @@ type OptionModel struct {
 }
 
 // NewOptionModel ...
-func NewOptionModel(key, title, envKey string) OptionModel {
+func NewOptionModel(title, envKey string) OptionModel {
 	return OptionModel{
-		Key:    key,
 		Title:  title,
 		EnvKey: envKey,
 
@@ -52,13 +67,6 @@ func NewEmptyOptionModel() OptionModel {
 	return OptionModel{
 		ValueMap: OptionValueMap{},
 	}
-}
-
-// AddValueMapItems ...
-func (option *OptionModel) AddValueMapItems(value string, options ...OptionModel) {
-	nestedOptions := option.ValueMap[value]
-	nestedOptions = append(nestedOptions, options...)
-	option.ValueMap[value] = nestedOptions
 }
 
 // GetValues ...
