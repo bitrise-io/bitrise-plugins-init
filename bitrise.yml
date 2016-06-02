@@ -10,17 +10,37 @@ app:
 workflows:
   # ----------------------------------------------------------------
   # --- workflows for CI and testing
-  test:
+  ci:
+    before_run:
+    - create-bin
     steps:
     - script:
-        title: "Go Test"
+        title: Install plugin
         inputs:
-        - working_dir: $PLUGIN_GO_PATH
         - content: |
-            go test ./...
+            #!/bin/bash
+            set -e
+
+            bitrise plugin install \
+              --source "file://." \
+              --bin-source "file://$DEPLOY_PATH"
+    - script:
+        title: Plugin test
+        inputs:
+        - content: |
+            #!/bin/bash
+            set -e
+
+            bitrise :$PLUGIN_NAME --loglevel debug -v
+            bitrise :$PLUGIN_NAME
 
   create-bin:
     steps:
+    - script:
+        title: "Export GOPATH"
+        inputs:
+        - content: |
+            export GOPATH=./go
     - script:
         title: Generate bin
         inputs:
@@ -58,36 +78,11 @@ workflows:
 
             envman add --key DEPLOY_PATH --value $current_bin_path
 
-  ci:
-    before_run:
-    - test
-    - create-bin
-    steps:
-    - script:
-        title: Install plugin
-        inputs:
-        - content: |
-            #!/bin/bash
-            set -e
-
-            bitrise plugin install \
-              --source "file://." \
-              --bin-source "file://$DEPLOY_PATH"
-    - script:
-        title: Plugin test
-        inputs:
-        - content: |
-            #!/bin/bash
-            set -e
-
-            bitrise :$PLUGIN_NAME --loglevel debug -v
-            bitrise :$PLUGIN_NAME
-
   # ----------------------------------------------------------------
   # --- workflows for Releasing
   create-release:
     before_run:
-    - test
+    - ci
     steps:
     - script:
         title:
@@ -108,7 +103,7 @@ workflows:
     envs:
     - RELEASE_VERSION: 0.9.2
     before_run:
-    - test
+    - ci
     steps:
     - script:
         title:
