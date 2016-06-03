@@ -6,21 +6,26 @@ import (
 	"path"
 	"path/filepath"
 
-	"encoding/json"
-
 	"gopkg.in/yaml.v2"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/bitrise-core/bitrise-init/models"
+	"github.com/bitrise-core/bitrise-init/output"
 	"github.com/bitrise-core/bitrise-init/scanners"
-	"github.com/bitrise-core/bitrise-init/version"
+	"github.com/bitrise-core/bitrise-init/scanners/android"
+	"github.com/bitrise-core/bitrise-init/scanners/fastlane"
+	"github.com/bitrise-core/bitrise-init/scanners/ios"
+	"github.com/bitrise-core/bitrise-init/scanners/xamarin"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/colorstring"
-	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-io/goinp/goinp"
 	"github.com/codegangsta/cli"
+)
+
+const (
+	defaultScanResultDir = "_scan_result"
 )
 
 func askForValue(option models.OptionModel) (string, string, error) {
@@ -30,7 +35,7 @@ func askForValue(option models.OptionModel) (string, string, error) {
 	if len(optionValues) == 1 {
 		selectedValue = optionValues[0]
 	} else {
-		question := fmt.Sprintf("Select: %s (%s)", option.Title, option.Key)
+		question := fmt.Sprintf("Select: %s", option.Title)
 		answer, err := goinp.SelectFromStrings(question, optionValues)
 		if err != nil {
 			return "", "", err
@@ -43,59 +48,92 @@ func askForValue(option models.OptionModel) (string, string, error) {
 }
 
 func initConfig(c *cli.Context) {
+	PrintHeader(c)
+
 	//
 	// Config
 	isCI := c.GlobalBool("ci")
-	isPrivate := c.Bool("private")
 	searchDir := c.String("dir")
 	outputDir := c.String("output-dir")
+	formatStr := c.String("format")
 
 	currentDir, err := pathutil.AbsPath("./")
 	if err != nil {
-		log.Fatalf("Failed to get current directory, error: %s", err)
+		log.Fatalf("Failed to get abs path (%s), error: %s", outputDir, err)
 	}
 
 	if searchDir == "" {
 		searchDir = currentDir
-		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-ios-cocoapods"
-		searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-android"
-		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/sample-apps-xamarin-uitest"
-		// searchDir = "/Users/godrei/Develop/bitrise/sample-apps/fastlane-example"
+	}
+	searchDir, err = pathutil.AbsPath(searchDir)
+	if err != nil {
+		log.Fatalf("Failed to get abs path (%s), error: %s", outputDir, err)
 	}
 
 	if outputDir == "" {
-		outputDir = filepath.Join(currentDir, "scan_result")
+		outputDir = filepath.Join(currentDir, defaultScanResultDir)
+	}
+	outputDir, err = pathutil.AbsPath(outputDir)
+	if err != nil {
+		log.Fatalf("Failed to get abs path (%s), error: %s", outputDir, err)
 	}
 
-	fmt.Println()
-	log.Info(colorstring.Greenf("Running scanner v%s", version.VERSION))
-	fmt.Println()
+	if formatStr == "" {
+		formatStr = output.YAMLFormat.String()
+	}
+	format, err := output.ParseFormat(formatStr)
+	if err != nil {
+		log.Fatalf("Failed to parse format, error: %s", err)
+	}
+	if format != output.JSONFormat && format != output.YAMLFormat {
+		log.Fatalf("Not allowed output format (%v), options: [%s, %s]", format, output.YAMLFormat.String(), output.JSONFormat.String())
+	}
 
 	if isCI {
-		log.Info(colorstring.Yellow("plugin runs in CI mode"))
-	}
-	if isPrivate {
-		log.Info(colorstring.Yellow("scanning private repository"))
+		log.Info(colorstring.Yellow("CI mode"))
 	}
 	log.Info(colorstring.Yellowf("scan dir: %s", searchDir))
 	log.Info(colorstring.Yellowf("output dir: %s", outputDir))
+	log.Info(colorstring.Yellowf("output format: %s", format))
 	fmt.Println()
+
+	if searchDir != currentDir {
+		log.Infof("Change work dir to (%s)", searchDir)
+		fmt.Println()
+		if err := os.Chdir(searchDir); err != nil {
+			log.Fatalf("Failed to change dir, to (%s), error: %s", searchDir, err)
+		}
+		defer func() {
+			fmt.Println()
+			log.Infof("Change work dir to (%s)", currentDir)
+			fmt.Println()
+			if err := os.Chdir(currentDir); err != nil {
+				log.Warnf("Failed to change dir, to (%s), error: %s", searchDir, err)
+			}
+		}()
+	}
 
 	//
 	// Scan
-	platformDetectors := []scanners.ScannerInterface{
-		new(scanners.Android),
-		new(scanners.Xamarin),
-		new(scanners.Ios),
-		new(scanners.Fastlane),
+	projectScanners := []scanners.ScannerInterface{
+		new(android.Scanner),
+		new(xamarin.Scanner),
+		new(ios.Scanner),
+		new(fastlane.Scanner),
 	}
-	optionsMap := map[string][]models.OptionModel{}
-	configsMap := map[string]map[string]bitriseModels.BitriseDataModel{}
+
+	optionsMap := map[string]models.OptionModel{}
+	configsMap := map[string]map[string]string{}
 
 	log.Infof(colorstring.Blue("Running scanners:"))
-	for _, detector := range platformDetectors {
+	fmt.Println()
+
+	for _, detector := range projectScanners {
 		detectorName := detector.Name()
-		log.Infof("  Scanner: %s", colorstring.Blue(detectorName))
+		log.Infof("Scanner: %s", colorstring.Blue(detectorName))
+
+		log.Info("+------------------------------------------------------------------------------+")
+		log.Info("|                                                                              |")
 
 		detector.Configure(searchDir)
 		detected, err := detector.DetectPlatform()
@@ -104,48 +142,49 @@ func initConfig(c *cli.Context) {
 		}
 
 		if !detected {
-			log.Info("  Platform not detected")
+			log.Info("|                                                                              |")
+			log.Info("+------------------------------------------------------------------------------+")
 			fmt.Println()
 			continue
 		}
 
-		log.Info("  Platform detected")
-		log.Info("  +------------------------------------------------------------------------------+")
-		log.Info("  |                                                                              |")
-
-		options, err := detector.Analyze()
+		option, err := detector.Options()
 		if err != nil {
 			log.Fatalf("Analyzer failed, error: %s", err)
 		}
 
 		log.Debug()
 		log.Debug("Analyze result:")
-		bytes, err := yaml.Marshal(options)
+		bytes, err := yaml.Marshal(option)
 		if err != nil {
-			log.Fatalf("Failed to marshal options, err: %s", err)
+			log.Fatalf("Failed to marshal option, error: %s", err)
 		}
 		log.Debugf("\n%v", string(bytes))
 
-		optionsMap[detectorName] = options
+		optionsMap[detectorName] = option
 
 		// Generate configs
 		log.Debug()
 		log.Debug("Generated configs:")
-		configs := detector.Configs(isPrivate)
+		configs, err := detector.Configs()
+		if err != nil {
+			log.Fatalf("Failed create configs, error: %s", err)
+		}
+
 		for name, config := range configs {
 			log.Debugf("  name: %s", name)
 
 			bytes, err := yaml.Marshal(config)
 			if err != nil {
-				log.Fatalf("Failed to marshal options, err: %s", err)
+				log.Fatalf("Failed to marshal option, error: %s", err)
 			}
 			log.Debugf("\n%v", string(bytes))
 		}
 
 		configsMap[detectorName] = configs
 
-		log.Info("  |                                                                              |")
-		log.Info("  +------------------------------------------------------------------------------+")
+		log.Info("|                                                                              |")
+		log.Info("+------------------------------------------------------------------------------+")
 		fmt.Println()
 	}
 
@@ -155,23 +194,17 @@ func initConfig(c *cli.Context) {
 		log.Infof(colorstring.Blue("Saving outputs:"))
 
 		scanResult := models.ScanResultModel{
-			OptionsMap: optionsMap,
+			OptionMap:  optionsMap,
 			ConfigsMap: configsMap,
 		}
 
 		if err := os.MkdirAll(outputDir, 0700); err != nil {
-			log.Fatalf("Failed to create (%s), err: %s", outputDir, err)
+			log.Fatalf("Failed to create (%s), error: %s", outputDir, err)
 		}
 
-		pth := path.Join(outputDir, "result.json")
-
-		scanResultBytes, err := json.MarshalIndent(scanResult, "", "\t")
-		if err != nil {
-			log.Fatalf("Failed to marshal scan result, error: %s", err)
-		}
-
-		if err := fileutil.WriteBytesToFile(pth, scanResultBytes); err != nil {
-			log.Fatalf("Failed to save scan result, err: %s", err)
+		pth := path.Join(outputDir, "result")
+		if err := output.Print(scanResult, format, pth); err != nil {
+			log.Fatalf("Failed to print result, error: %s", err)
 		}
 		log.Infof("  scan result: %s", colorstring.Blue(pth))
 
@@ -179,36 +212,36 @@ func initConfig(c *cli.Context) {
 	}
 
 	//
-	// Select options
+	// Select option
 	log.Infof(colorstring.Blue("Collecting inputs:"))
 
-	for detectorName, options := range optionsMap {
+	for detectorName, option := range optionsMap {
 		log.Infof("  Scanner: %s", colorstring.Blue(detectorName))
 
 		// Init
 		platformOutputDir := path.Join(outputDir, detectorName)
 		if exist, err := pathutil.IsDirExists(platformOutputDir); err != nil {
-			log.Fatalf("Failed to check if path (%s) exis, err: %s", platformOutputDir, err)
+			log.Fatalf("Failed to check if path (%s) exis, error: %s", platformOutputDir, err)
 		} else if exist {
 			if err := os.RemoveAll(platformOutputDir); err != nil {
-				log.Fatalf("Failed to cleanup (%s), err: %s", platformOutputDir, err)
+				log.Fatalf("Failed to cleanup (%s), error: %s", platformOutputDir, err)
 			}
 		}
 
 		if err := os.MkdirAll(platformOutputDir, 0700); err != nil {
-			log.Fatalf("Failed to create (%s), err: %s", platformOutputDir, err)
+			log.Fatalf("Failed to create (%s), error: %s", platformOutputDir, err)
 		}
 
 		// Collect inputs
 		configPth := ""
 		appEnvs := []envmanModels.EnvironmentItemModel{}
 
-		var walkWidth func(options []models.OptionModel)
+		var walkDepth func(option models.OptionModel)
 
-		walkDepth := func(option models.OptionModel) {
+		walkDepth = func(option models.OptionModel) {
 			optionEnvKey, selectedValue, err := askForValue(option)
 			if err != nil {
-				log.Fatalf("Failed to ask for vale of key (%s), error: %s", option.Key, err)
+				log.Fatalf("Failed to ask for vale, error: %s", err)
 			}
 
 			if optionEnvKey == "" {
@@ -219,32 +252,32 @@ func initConfig(c *cli.Context) {
 				})
 			}
 
-			nestedOptions := option.ValueMap[selectedValue]
-			if len(nestedOptions) == 0 {
+			nestedOptions, found := option.ValueMap[selectedValue]
+			if !found {
 				return
 			}
 
-			walkWidth(nestedOptions)
+			walkDepth(nestedOptions)
 		}
 
-		walkWidth = func(options []models.OptionModel) {
-			for _, option := range options {
-				walkDepth(option)
-			}
-		}
-
-		walkWidth(options)
+		walkDepth(option)
 
 		log.Debug()
 		log.Debug("Selected app envs:")
 		aBytes, err := yaml.Marshal(appEnvs)
 		if err != nil {
-			log.Fatalf("Failed to marshal appEnvs, err: %s", err)
+			log.Fatalf("Failed to marshal appEnvs, error: %s", err)
 		}
 		log.Debugf("\n%v", string(aBytes))
 
 		configMap := configsMap[detectorName]
-		config := configMap[configPth]
+		configStr := configMap[configPth]
+
+		var config bitriseModels.BitriseDataModel
+		if err := yaml.Unmarshal([]byte(configStr), &config); err != nil {
+			log.Fatalf("Failed to unmarshal config, error: %s", err)
+		}
+
 		config.App.Environments = appEnvs
 
 		log.Debug()
@@ -252,19 +285,14 @@ func initConfig(c *cli.Context) {
 		log.Debugf("  name: %s", configPth)
 		aBytes, err = yaml.Marshal(config)
 		if err != nil {
-			log.Fatalf("Failed to marshal config, err: %s", err)
+			log.Fatalf("Failed to marshal config, error: %s", err)
 		}
 		log.Debugf("\n%v", string(aBytes))
 
 		// Write config to file
-		configBytes, err := yaml.Marshal(config)
-		if err != nil {
-			log.Fatalf("Failed to marshal config, error: %#v", err)
-		}
-
-		pth := path.Join(platformOutputDir, configPth+".yml")
-		if err := fileutil.WriteBytesToFile(pth, configBytes); err != nil {
-			log.Fatalf("Failed to save configs, err: %s", err)
+		pth := path.Join(platformOutputDir, configPth)
+		if err := output.Print(config, format, pth); err != nil {
+			log.Fatalf("Failed to print result, error: %s", err)
 		}
 		log.Infof("  bitrise.yml template: %s", colorstring.Blue(pth))
 		fmt.Println()
