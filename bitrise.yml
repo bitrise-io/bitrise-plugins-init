@@ -11,6 +11,7 @@ workflows:
   # --- workflows for CI and testing
   test:
     before_run:
+    - _setup
     - create-bin
     steps:
     - script:
@@ -36,19 +37,45 @@ workflows:
             echo "Run init:"
             bitrise :$PLUGIN_NAME
 
-  create-bin:
+  _setup:
     steps:
     - script:
-        title: "Export GOPATH"
+        title: "Setup GO"
         inputs:
         - content: |
-            export GOPATH=./go
+            #!/bin/bash
+            set -e
+
+            current_dir=$(pwd)
+            cd ./go
+            tool_go_path=$(pwd)
+            cd $current_dir
+
+            envman add --key GOPATH --value $tool_go_path
+            envman add --key GO15VENDOREXPERIMENT --value 1
+    - script:
+        title: Print infos for the test
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -e
+
+            echo "GO version:"
+            go version
+
+            echo "GO15VENDOREXPERIMENT:"
+            echo $GO15VENDOREXPERIMENT
+
+            echo "GOPATH:"
+            echo $GOPATH
+
+  create-bin:
+    steps:
     - script:
         title: Generate bin
         inputs:
         - content: |
             #!/bin/bash
-
             set -e
 
             # Create bins
