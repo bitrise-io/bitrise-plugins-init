@@ -1,7 +1,8 @@
 _bin/
 _tmp/
+_defaults
+_scan_result
 .bitrise*
 go/bin/
 go/pkg/
 go/src/github.com/bitrise-core/bitrise-plugins-init/_tmp
-

@@ -7,12 +7,20 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/bitrise-core/bitrise-init/version"
+	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/codegangsta/cli"
 )
 
 //=======================================
 // Functions
 //=======================================
+
+// PrintHeader ...
+func PrintHeader(c *cli.Context) {
+	fmt.Println()
+	log.Info(colorstring.Greenf("Running %s v%s", c.App.Name, c.App.Version))
+	fmt.Println()
+}
 
 func printVersion(c *cli.Context) {
 	fmt.Fprintf(c.App.Writer, "%v\n", c.App.Version)
@@ -72,22 +80,58 @@ func Run() {
 	}
 	app.Before = before
 	app.Commands = []cli.Command{
+		{
+			Name:   "version",
+			Usage:  "Prints the version",
+			Action: printVersionCmd,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "format",
+					Usage: "Output format, options [raw, json, yaml].",
+					Value: "raw",
+				},
+				cli.BoolFlag{
+					Name:  "full",
+					Usage: "Prints the build number as well.",
+				},
+			},
+		},
 		cli.Command{
 			Name:   "config",
-			Usage:  "Generates a bitrise config files.",
+			Usage:  "Generates a bitrise config files based on your project.",
 			Action: initConfig,
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "dir",
 					Usage: "Directory to scan.",
+					Value: "./",
 				},
 				cli.StringFlag{
 					Name:  "output-dir",
 					Usage: "Directory to save scan results.",
+					Value: "./_scan_result",
 				},
-				cli.BoolFlag{
-					Name:  "private",
-					Usage: "If true it indicates that source repository is private!",
+				cli.StringFlag{
+					Name:  "format",
+					Usage: "Output format, options [json, yaml].",
+					Value: "yaml",
+				},
+			},
+		},
+		cli.Command{
+			Name:   "manual-config",
+			Usage:  "Generates default bitrise config files.",
+			Action: initManualConfig,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "output-dir",
+					Usage: "Directory to save scan results.",
+					Value: "./_defaults",
+				},
+				cli.StringFlag{
+					Name:  "format",
+					Usage: "Output format, options [json, yaml].",
+					Value: "yaml",
 				},
 			},
 		},
