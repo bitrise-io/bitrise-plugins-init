@@ -34,10 +34,6 @@ workflows:
             bitrise :$PLUGIN_NAME -v
             echo
 
-            echo "Run plugin:"
-            bitrise :$PLUGIN_NAME
-            echo
-
   go-tests:
     before_run:
     - _install-test-tools
