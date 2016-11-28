@@ -9,9 +9,12 @@ description: |-
   * For __Xamarin__ projects inspects the solution files and lists the configuration options, also checks for NuGet and Xamarin Components packages.
 
   * For __Fastlane__ detects Fastfile and lists the available lanes.
+# executable:
+#   osx: https://github.com/bitrise-core/bitrise-plugins-init/releases/download/0.9.0/init-Darwin-x86_64
+#   linux: https://github.com/bitrise-core/bitrise-plugins-init/releases/download/0.9.0/init-Linux-x86_64
 executable:
-  osx: https://github.com/bitrise-core/bitrise-plugins-init/releases/download/0.9.0/init-Darwin-x86_64
-  linux: https://github.com/bitrise-core/bitrise-plugins-init/releases/download/0.9.0/init-Linux-x86_64
+  osx: file://./_bin/init-Darwin-x86_64
+  linux: file://./_bin/init-Linux-x86_64
 requirements:
 - tool: bitrise
   min_version: 1.3.0

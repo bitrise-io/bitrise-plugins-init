@@ -1,18 +1,18 @@
-format_version: 1.0.0
+format_version: 1.3.1
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
 app:
   envs:
   - PLUGIN_NAME: init
-  - PLUGIN_GO_PATH: "./go/src/github.com/bitrise-core/bitrise-init"
+  - RELEASE_VERSION: 0.9.0
 
 workflows:
   # ----------------------------------------------------------------
   # --- workflows for CI and testing
   test:
     before_run:
-    - _setup
-    - create-bin
+    - go-tests
+    - create_binaries
     steps:
     - script:
         title: Install plugin
@@ -22,8 +22,7 @@ workflows:
             set -e
 
             bitrise plugin install \
-              --source "file://." \
-              --bin-source "file://$DEPLOY_PATH"
+              --source "file://." 
     - script:
         title: Plugin test
         inputs:
@@ -31,85 +30,97 @@ workflows:
             #!/bin/bash
             set -e
 
-            echo "Init version:"
+            echo "Plugin version:"
             bitrise :$PLUGIN_NAME -v
+            echo
 
-            echo "Run init:"
-            bitrise :$PLUGIN_NAME
-
-  _setup:
+  go-tests:
+    before_run:
+    - _install-test-tools
     steps:
     - script:
-        title: "Setup GO"
-        inputs:
-        - content: |
-            #!/bin/bash
-            set -e
-
-            current_dir=$(pwd)
-            cd ./go
-            tool_go_path=$(pwd)
-            cd $current_dir
-
-            envman add --key GOPATH --value $tool_go_path
-            envman add --key GO15VENDOREXPERIMENT --value 1
-    - script:
-        title: Print infos for the test
+        title: Export go files to test
         inputs:
         - content: |-
             #!/bin/bash
-            set -e
+            set -ex
 
-            echo "GO version:"
-            go version
+            no_vendor_paths="$(go list ./... | grep -v vendor)"
+            envman add --key GOLIST_WITHOUT_VENDOR --value "$no_vendor_paths"
+    - script:
+        title: Err check
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
 
-            echo "GO15VENDOREXPERIMENT:"
-            echo $GO15VENDOREXPERIMENT
+            errcheck -asserts=true -blank=true $GOLIST_WITHOUT_VENDOR
+    - script:
+        title: Go lint
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
 
-            echo "GOPATH:"
-            echo $GOPATH
+            while read -r line; do
+              echo "-> Linting: $line"
+              golint_out="$(golint $line)"
+              if [[ "${golint_out}" != "" ]] ; then
+                echo "=> Golint issues found:"
+                echo "${golint_out}"
+                exit 1
+              fi
+            done <<< "$GOLIST_WITHOUT_VENDOR"
+    - script:
+        title: Go test
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
 
-  create-bin:
+            go test ./...
+
+  _install-test-tools:
     steps:
     - script:
-        title: Generate bin
+        title: Install required testing tools
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            # Check for unhandled errors
+            go get -u -v github.com/kisielk/errcheck
+
+            # Go lint
+            go get -u -v github.com/golang/lint/golint
+
+  # ----------------------------------------------------------------
+  # --- Utility workflows
+  godeps-update:
+    title: Godeps update
+    description: |
+      Used for updating bitrise dependencies with godep
+    steps:
+    - script:
+        title: Dependency update
         inputs:
         - content: |
             #!/bin/bash
-            set -e
+            set -ex
+            go get -u -v github.com/tools/godep
 
-            # Create bins
-            rm -rf ./_bin/tmp-bins/
+            rm -rf ./Godeps
+            rm -rf ./vendor
 
-            current_dir=$(pwd)
-
-            export ARCH=x86_64
-            export GOARCH=amd64
-
-            export OS=Darwin
-            export GOOS=darwin
-            deploy_pth="$current_dir/_bin/$PLUGIN_NAME-$OS-$ARCH"
-
-            cd $PLUGIN_GO_PATH
-            go build -o "$deploy_pth"
-            cd -
-
-            export OS=Linux
-            export GOOS=linux
-            deploy_pth="$current_dir/_bin/$PLUGIN_NAME-$OS-$ARCH"
-
-            cd $PLUGIN_GO_PATH
-            go build -o "$deploy_pth"
-            cd -
-
-            current_bin_path="$current_dir/_bin/$PLUGIN_NAME-$(uname -s)-$(uname -m)"
-            echo "current_bin_path: $current_bin_path"
-
-            envman add --key DEPLOY_PATH --value $current_bin_path
+            go get -t -d ./...
+            godep save ./...
 
   # ----------------------------------------------------------------
   # --- workflows for Releasing
   create-release:
+    after_run:
+    - create_binaries
     steps:
     - script:
         title:
@@ -119,18 +130,52 @@ workflows:
             set -e
 
             export CI=true
-            releaseman create --bump-version patch
+            releaseman create \
+              --version $RELEASE_VERSION \
+              --set-version-script "bash _scripts/set_version.sh version/version.go"
 
-  create-release-version:
-    envs:
-    - RELEASE_VERSION: 0.9.2
+  create_binaries:
+    title: Create binaries
+    description: |
+        Creates Linux and Darwin binaries
     steps:
     - script:
-        title:
+        title: Create binaries
         inputs:
         - content: |
             #!/bin/bash
             set -e
+            set -x
 
-            export CI=true
-            releaseman create --version $RELEASE_VERSION
+            echo
+            echo "Create final binaries"
+            echo "  Build number: $BITRISE_BUILD_NUMBER"
+
+            export ARCH=x86_64
+            export GOARCH=amd64
+
+            # Create Linux binary
+            export OS=Linux
+            export GOOS=linux
+
+            DEPLOY_PATH="_bin/$PLUGIN_NAME-$OS-$ARCH"
+            echo "  Create final Linux binary at: $DEPLOY_PATH"
+
+            go build -o "$DEPLOY_PATH"
+
+            envman add --key LINUX_DEPLOY_PATH --value $DEPLOY_PATH
+            cp $DEPLOY_PATH $BITRISE_DEPLOY_DIR/$PLUGIN_NAME-$OS-$ARCH
+            echo "  Copy final Linux binary to: $BITRISE_DEPLOY_DIR/$PLUGIN_NAME-$OS-$ARCH"
+
+            # Create Darwin bin
+            export OS=Darwin
+            export GOOS=darwin
+
+            DEPLOY_PATH="_bin/$PLUGIN_NAME-$OS-$ARCH"
+            echo "  Create final Darwin binary at: $DEPLOY_PATH"
+
+            go build -o "$DEPLOY_PATH"
+
+            envman add --key OSX_DEPLOY_PATH --value $DEPLOY_PATH
+            cp $DEPLOY_PATH $BITRISE_DEPLOY_DIR/$PLUGIN_NAME-$OS-$ARCH
+            echo "  Copy final Darwin binary to: $BITRISE_DEPLOY_DIR/$PLUGIN_NAME-$OS-$ARCH"
