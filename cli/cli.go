@@ -28,9 +28,17 @@ func Run() {
 	app.Author = ""
 	app.Email = ""
 
-	app.Commands = []cli.Command{
-		configCmd,
-		manualConfigCmd,
+	app.Action = func(c *cli.Context) error {
+		if err := action(c); err != nil {
+			log.Fatal(err)
+		}
+		return nil
+	}
+	app.Flags = []cli.Flag{
+		cli.BoolFlag{
+			Name:  "minimal",
+			Usage: "created empty bitrise config and secrets",
+		},
 	}
 
 	if err := app.Run(os.Args); err != nil {
