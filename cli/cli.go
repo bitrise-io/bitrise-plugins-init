@@ -30,6 +30,7 @@ func Run() {
 
 	app.Commands = []cli.Command{
 		configCmd,
+		manualConfigCmd,
 	}
 
 	if err := app.Run(os.Args); err != nil {

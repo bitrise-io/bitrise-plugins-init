@@ -7,6 +7,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/bitrise-core/bitrise-init/scanner"
+	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
@@ -14,15 +15,23 @@ import (
 	yaml "gopkg.in/yaml.v1"
 )
 
-var configCmd = cli.Command{
-	Name:  "config",
-	Usage: "Scans your project and generates bitrise config and secrets",
+var manualConfigCmd = cli.Command{
+	Name:  "manual-config",
+	Usage: "Creates bitrise template config and secrets",
 	Action: func(c *cli.Context) {
-		if err := config(c); err != nil {
+		if err := manualConfig(c); err != nil {
 			log.Fatal(err)
 		}
 	},
 	Flags: []cli.Flag{
+		cli.BoolFlag{
+			Name:  "empty",
+			Usage: "creates empty bitrise config and secrets.",
+		},
+		cli.StringFlag{
+			Name:  "platform",
+			Usage: "creates bitrise config for a specified platform (options: ios,android,xamarin,fastlane) and secrets",
+		},
 		cli.StringFlag{
 			Name:  "config",
 			Usage: "bitrise config file path",
@@ -36,10 +45,12 @@ var configCmd = cli.Command{
 	},
 }
 
-func config(c *cli.Context) error {
+func manualConfig(c *cli.Context) error {
 	// validate inputs
 	configPth := c.String("config")
 	secretsPth := c.String("secrets")
+	empty := c.Bool("empty")
+	platform := c.String("platform")
 
 	if configPth == "" {
 		return fmt.Errorf("config path not specified")
@@ -61,24 +72,62 @@ func config(c *cli.Context) error {
 		return fmt.Errorf("secrets path (%s) already exist", secretsPth)
 	}
 
-	// run scanner
-	currentDir, err := os.Getwd()
-	if err != nil {
-		return fmt.Errorf("failed to get current directory, error: %s", err)
+	if !c.IsSet("empty") && !c.IsSet("platform") {
+		return fmt.Errorf("Use --empty or --platform (ios/android/xamarin/fastlane) flag to specify config type")
 	}
 
-	scanResult, err := scanner.Config(currentDir)
-	if err != nil {
-		return err
-	}
+	// create template config
+	bitriseConfig := bitriseModels.BitriseDataModel{}
 
-	if len(scanResult.OptionsMap) == 0 {
-		return fmt.Errorf("No known platform type detected")
-	}
+	if empty {
+		scanResult, err := scanner.ManualConfig()
+		if err != nil {
+			return fmt.Errorf("failed to create empty config, error: %s", err)
+		}
 
-	bitriseConfig, err := scanner.AskForConfig(scanResult)
-	if err != nil {
-		return err
+		emptyConfigs, ok := scanResult.ConfigsMap["custom"]
+		if !ok {
+			return fmt.Errorf("no default empty configs found, error: %s", err)
+		}
+
+		emptyConfigStr, ok := emptyConfigs["custom-config"]
+		if !ok {
+			return fmt.Errorf("no default empty config found, error: %s", err)
+		}
+
+		var emptyConfig bitriseModels.BitriseDataModel
+		if err := yaml.Unmarshal([]byte(emptyConfigStr), &emptyConfig); err != nil {
+			return fmt.Errorf("no default empty config found, error: %s", err)
+		}
+
+		bitriseConfig = emptyConfig
+	} else if platform != "" {
+		scanResult, err := scanner.ManualConfig()
+		if err != nil {
+			return fmt.Errorf("failed to create empty config, error: %s", err)
+		}
+
+		platformOptions, ok := scanResult.OptionsMap[platform]
+		if !ok {
+			return fmt.Errorf("no available configs found for platform (%s), error: %s", platform, err)
+		}
+
+		configName, appEnvs, err := scanner.AskForOptions(platformOptions)
+		if err != nil {
+			return fmt.Errorf("failed to collect inputs, error: %s", err)
+		}
+
+		configMap := scanResult.ConfigsMap[platform]
+		configStr := configMap[configName]
+
+		var platformConfig bitriseModels.BitriseDataModel
+		if err := yaml.Unmarshal([]byte(configStr), &platformConfig); err != nil {
+			return fmt.Errorf("failed to unmarshal config, error: %s", err)
+		}
+
+		platformConfig.App.Environments = append(platformConfig.App.Environments, appEnvs...)
+
+		bitriseConfig = platformConfig
 	}
 
 	// write outputs
