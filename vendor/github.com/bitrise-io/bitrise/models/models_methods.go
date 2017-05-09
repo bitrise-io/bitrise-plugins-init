@@ -12,6 +12,53 @@ import (
 	"github.com/ryanuber/go-glob"
 )
 
+func (triggerItem TriggerMapItemModel) String(printWorkflow bool) string {
+	str := ""
+
+	if triggerItem.PushBranch != "" {
+		str = fmt.Sprintf("push_branch: %s", triggerItem.PushBranch)
+	}
+
+	if triggerItem.PullRequestSourceBranch != "" || triggerItem.PullRequestTargetBranch != "" {
+		if str != "" {
+			str += " "
+		}
+
+		if triggerItem.PullRequestSourceBranch != "" {
+			str += fmt.Sprintf("pull_request_source_branch: %s", triggerItem.PullRequestSourceBranch)
+		}
+		if triggerItem.PullRequestTargetBranch != "" {
+			if triggerItem.PullRequestSourceBranch != "" {
+				str += " && "
+			}
+
+			str += fmt.Sprintf("pull_request_target_branch: %s", triggerItem.PullRequestTargetBranch)
+		}
+	}
+
+	if triggerItem.Tag != "" {
+		if str != "" {
+			str += " "
+		}
+
+		str += fmt.Sprintf("tag: %s", triggerItem.Tag)
+	}
+
+	if triggerItem.Pattern != "" {
+		if str != "" {
+			str += " "
+		}
+
+		str += fmt.Sprintf("pattern: %s && is_pull_request_allowed: %v", triggerItem.Pattern, triggerItem.IsPullRequestAllowed)
+	}
+
+	if printWorkflow {
+		str += fmt.Sprintf(" -> workflow: %s", triggerItem.WorkflowID)
+	}
+
+	return str
+}
+
 func triggerEventType(pushBranch, prSourceBranch, prTargetBranch, tag string) (TriggerEventType, error) {
 	if pushBranch != "" {
 		// Ensure not mixed with code-push event
@@ -279,7 +326,7 @@ func (triggerItem TriggerMapItemModel) Validate() error {
 	if triggerItem.Pattern == "" {
 		_, err := triggerEventType(triggerItem.PushBranch, triggerItem.PullRequestSourceBranch, triggerItem.PullRequestTargetBranch, triggerItem.Tag)
 		if err != nil {
-			return fmt.Errorf("trigger map item (%v) validate failed, error: %s", triggerItem, err)
+			return fmt.Errorf("trigger map item (%s) validate failed, error: %s", triggerItem.String(true), err)
 		}
 	} else if triggerItem.PushBranch != "" ||
 		triggerItem.PullRequestSourceBranch != "" || triggerItem.PullRequestTargetBranch != "" || triggerItem.Tag != "" {
@@ -300,11 +347,87 @@ func (triggerMap TriggerMapModel) Validate() error {
 	return nil
 }
 
+func checkDuplicatedTriggerMapItems(triggerMap TriggerMapModel) error {
+	triggeTypeItemMap := map[string][]TriggerMapItemModel{}
+
+	for _, triggerItem := range triggerMap {
+		if triggerItem.Pattern == "" {
+			triggerType, err := triggerEventType(triggerItem.PushBranch, triggerItem.PullRequestSourceBranch, triggerItem.PullRequestTargetBranch, triggerItem.Tag)
+			if err != nil {
+				return fmt.Errorf("trigger map item (%s) validate failed, error: %s", triggerItem, err)
+			}
+
+			triggerItems := triggeTypeItemMap[string(triggerType)]
+
+			for _, item := range triggerItems {
+				switch triggerType {
+				case TriggerEventTypeCodePush:
+					if triggerItem.PushBranch == item.PushBranch {
+						return fmt.Errorf("duplicated trigger item found (%s)", triggerItem.String(false))
+					}
+				case TriggerEventTypePullRequest:
+					if triggerItem.PullRequestSourceBranch == item.PullRequestSourceBranch &&
+						triggerItem.PullRequestTargetBranch == item.PullRequestTargetBranch {
+						return fmt.Errorf("duplicated trigger item found (%s)", triggerItem.String(false))
+					}
+				case TriggerEventTypeTag:
+					if triggerItem.Tag == item.Tag {
+						return fmt.Errorf("duplicated trigger item found (%s)", triggerItem.String(false))
+					}
+				}
+			}
+
+			triggerItems = append(triggerItems, triggerItem)
+			triggeTypeItemMap[string(triggerType)] = triggerItems
+		} else if triggerItem.Pattern != "" {
+			triggerItems := triggeTypeItemMap["deprecated"]
+
+			for _, item := range triggerItems {
+				if triggerItem.Pattern == item.Pattern &&
+					triggerItem.IsPullRequestAllowed == item.IsPullRequestAllowed {
+					return fmt.Errorf("duplicated trigger item found (%s)", triggerItem.String(false))
+				}
+			}
+
+			triggerItems = append(triggerItems, triggerItem)
+			triggeTypeItemMap["deprecated"] = triggerItems
+		}
+	}
+
+	return nil
+}
+
 // Validate ...
 func (config *BitriseDataModel) Validate() ([]string, error) {
 	warnings := []string{}
 
+	if config.FormatVersion == "" {
+		return warnings, fmt.Errorf("missing format_version")
+	}
+
 	if err := config.TriggerMap.Validate(); err != nil {
+		return warnings, err
+	}
+
+	for _, triggerMapItem := range config.TriggerMap {
+		if strings.HasPrefix(triggerMapItem.WorkflowID, "_") {
+			warnings = append(warnings, fmt.Sprintf("workflow (%s) defined in trigger item (%s), but utility workflows can't be triggered directly", triggerMapItem.WorkflowID, triggerMapItem.String(true)))
+		}
+
+		found := false
+
+		for workflowID := range config.Workflows {
+			if workflowID == triggerMapItem.WorkflowID {
+				found = true
+			}
+		}
+
+		if !found {
+			return warnings, fmt.Errorf("workflow (%s) defined in trigger item (%s), but does not exist", triggerMapItem.WorkflowID, triggerMapItem.String(true))
+		}
+	}
+
+	if err := checkDuplicatedTriggerMapItems(config.TriggerMap); err != nil {
 		return warnings, err
 	}
 
@@ -523,6 +646,14 @@ func MergeEnvironmentWith(env *envmanModels.EnvironmentItemModel, otherEnv envma
 	if err != nil {
 		return err
 	}
+
+	if otherOptions.IsExpand != nil {
+		options.IsExpand = pointers.NewBoolPtr(*otherOptions.IsExpand)
+	}
+	if otherOptions.SkipIfEmpty != nil {
+		options.SkipIfEmpty = pointers.NewBoolPtr(*otherOptions.SkipIfEmpty)
+	}
+
 	if otherOptions.Title != nil {
 		options.Title = pointers.NewStringPtr(*otherOptions.Title)
 	}
@@ -532,14 +663,14 @@ func MergeEnvironmentWith(env *envmanModels.EnvironmentItemModel, otherEnv envma
 	if otherOptions.Summary != nil {
 		options.Summary = pointers.NewStringPtr(*otherOptions.Summary)
 	}
+	if otherOptions.Category != nil {
+		options.Category = pointers.NewStringPtr(*otherOptions.Category)
+	}
 	if len(otherOptions.ValueOptions) > 0 {
 		options.ValueOptions = otherOptions.ValueOptions
 	}
 	if otherOptions.IsRequired != nil {
 		options.IsRequired = pointers.NewBoolPtr(*otherOptions.IsRequired)
-	}
-	if otherOptions.IsExpand != nil {
-		options.IsExpand = pointers.NewBoolPtr(*otherOptions.IsExpand)
 	}
 	if otherOptions.IsDontChangeValue != nil {
 		options.IsDontChangeValue = pointers.NewBoolPtr(*otherOptions.IsDontChangeValue)
@@ -584,12 +715,13 @@ func MergeStepWith(step, otherStep stepmanModels.StepModel) (stepmanModels.StepM
 	if otherStep.Title != nil {
 		step.Title = pointers.NewStringPtr(*otherStep.Title)
 	}
-	if otherStep.Description != nil {
-		step.Description = pointers.NewStringPtr(*otherStep.Description)
-	}
 	if otherStep.Summary != nil {
 		step.Summary = pointers.NewStringPtr(*otherStep.Summary)
 	}
+	if otherStep.Description != nil {
+		step.Description = pointers.NewStringPtr(*otherStep.Description)
+	}
+
 	if otherStep.Website != nil {
 		step.Website = pointers.NewStringPtr(*otherStep.Website)
 	}
@@ -599,21 +731,24 @@ func MergeStepWith(step, otherStep stepmanModels.StepModel) (stepmanModels.StepM
 	if otherStep.SupportURL != nil {
 		step.SupportURL = pointers.NewStringPtr(*otherStep.SupportURL)
 	}
+
 	if otherStep.PublishedAt != nil {
 		step.PublishedAt = pointers.NewTimePtr(*otherStep.PublishedAt)
 	}
-	if otherStep.Source.Git != "" {
-		step.Source.Git = otherStep.Source.Git
+	if otherStep.Source != nil {
+		step.Source = new(stepmanModels.StepSourceModel)
+
+		if otherStep.Source.Git != "" {
+			step.Source.Git = otherStep.Source.Git
+		}
+		if otherStep.Source.Commit != "" {
+			step.Source.Commit = otherStep.Source.Commit
+		}
 	}
-	if otherStep.Source.Commit != "" {
-		step.Source.Commit = otherStep.Source.Commit
+	if len(otherStep.AssetURLs) > 0 {
+		step.AssetURLs = otherStep.AssetURLs
 	}
-	if len(otherStep.Dependencies) > 0 {
-		step.Dependencies = otherStep.Dependencies
-	}
-	if len(otherStep.Deps.Brew) > 0 || len(otherStep.Deps.AptGet) > 0 || len(otherStep.Deps.CheckOnly) > 0 {
-		step.Deps = otherStep.Deps
-	}
+
 	if len(otherStep.HostOsTags) > 0 {
 		step.HostOsTags = otherStep.HostOsTags
 	}
@@ -623,9 +758,20 @@ func MergeStepWith(step, otherStep stepmanModels.StepModel) (stepmanModels.StepM
 	if len(otherStep.TypeTags) > 0 {
 		step.TypeTags = otherStep.TypeTags
 	}
+	if len(otherStep.Dependencies) > 0 {
+		step.Dependencies = otherStep.Dependencies
+	}
+	if otherStep.Toolkit != nil {
+		step.Toolkit = new(stepmanModels.StepToolkitModel)
+		*step.Toolkit = *otherStep.Toolkit
+	}
+	if otherStep.Deps != nil && (len(otherStep.Deps.Brew) > 0 || len(otherStep.Deps.AptGet) > 0 || len(otherStep.Deps.CheckOnly) > 0) {
+		step.Deps = otherStep.Deps
+	}
 	if otherStep.IsRequiresAdminUser != nil {
 		step.IsRequiresAdminUser = pointers.NewBoolPtr(*otherStep.IsRequiresAdminUser)
 	}
+
 	if otherStep.IsAlwaysRun != nil {
 		step.IsAlwaysRun = pointers.NewBoolPtr(*otherStep.IsAlwaysRun)
 	}
@@ -634,6 +780,9 @@ func MergeStepWith(step, otherStep stepmanModels.StepModel) (stepmanModels.StepM
 	}
 	if otherStep.RunIf != nil {
 		step.RunIf = pointers.NewStringPtr(*otherStep.RunIf)
+	}
+	if otherStep.Timeout != nil {
+		step.Timeout = pointers.NewIntPtr(*otherStep.Timeout)
 	}
 
 	for _, input := range step.Inputs {

@@ -4,25 +4,24 @@ import (
 	"fmt"
 	"os"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/scanners"
-	"github.com/bitrise-core/bitrise-init/scanners/android"
-	"github.com/bitrise-core/bitrise-init/scanners/fastlane"
-	"github.com/bitrise-core/bitrise-init/scanners/ios"
-	"github.com/bitrise-core/bitrise-init/scanners/xamarin"
 	"github.com/bitrise-io/go-utils/colorstring"
+	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
+	"github.com/bitrise-io/go-utils/sliceutil"
 )
 
 // Config ...
-func Config(searchDir string) (models.ScanResultModel, error) {
+func Config(searchDir string) models.ScanResultModel {
+	result := models.ScanResultModel{}
 
 	//
 	// Setup
 	currentDir, err := os.Getwd()
 	if err != nil {
-		return models.ScanResultModel{}, fmt.Errorf("Failed to expand current directory path, error: %s", err)
+		result.AddError("general", fmt.Sprintf("Failed to expand current directory path, error: %s", err))
+		return result
 	}
 
 	if searchDir == "" {
@@ -30,18 +29,20 @@ func Config(searchDir string) (models.ScanResultModel, error) {
 	} else {
 		absScerach, err := pathutil.AbsPath(searchDir)
 		if err != nil {
-			return models.ScanResultModel{}, fmt.Errorf("Failed to expand path (%s), error: %s", searchDir, err)
+			result.AddError("general", fmt.Sprintf("Failed to expand path (%s), error: %s", searchDir, err))
+			return result
 		}
 		searchDir = absScerach
 	}
 
 	if searchDir != currentDir {
 		if err := os.Chdir(searchDir); err != nil {
-			return models.ScanResultModel{}, fmt.Errorf("Failed to change dir, to (%s), error: %s", searchDir, err)
+			result.AddError("general", fmt.Sprintf("Failed to change dir, to (%s), error: %s", searchDir, err))
+			return result
 		}
 		defer func() {
 			if err := os.Chdir(currentDir); err != nil {
-				log.Warnf("Failed to change dir, to (%s), error: %s", searchDir, err)
+				log.Warnft("Failed to change dir, to (%s), error: %s", searchDir, err)
 			}
 		}()
 	}
@@ -49,40 +50,45 @@ func Config(searchDir string) (models.ScanResultModel, error) {
 
 	//
 	// Scan
-	projectScanners := []scanners.ScannerInterface{
-		new(android.Scanner),
-		new(xamarin.Scanner),
-		new(ios.Scanner),
-		new(fastlane.Scanner),
-	}
+	projectScanners := scanners.ActiveScanners
 
+	projectTypeErrorMap := map[string]models.Errors{}
 	projectTypeWarningMap := map[string]models.Warnings{}
 	projectTypeOptionMap := map[string]models.OptionModel{}
 	projectTypeConfigMap := map[string]models.BitriseConfigMap{}
 
-	log.Infof(colorstring.Blue("Running scanners:"))
+	excludedScannerNames := []string{}
+
+	log.Infoft(colorstring.Blue("Running scanners:"))
 	fmt.Println()
 
 	for _, detector := range projectScanners {
 		detectorName := detector.Name()
-		log.Infof("Scanner: %s", colorstring.Blue(detectorName))
-
-		log.Info("+------------------------------------------------------------------------------+")
-		log.Info("|                                                                              |")
-
 		detectorWarnings := []string{}
-		detector.Configure(searchDir)
-		detected, err := detector.DetectPlatform()
+		detectorErrors := []string{}
+
+		log.Infoft("Scanner: %s", colorstring.Blue(detectorName))
+
+		if sliceutil.IsStringInSlice(detectorName, excludedScannerNames) {
+			log.Warnft("scanner is marked as excluded, skipping...")
+			fmt.Println()
+			continue
+		}
+
+		log.Printft("+------------------------------------------------------------------------------+")
+		log.Printft("|                                                                              |")
+
+		detected, err := detector.DetectPlatform(searchDir)
 		if err != nil {
-			log.Errorf("Scanner failed, error: %s", err)
+			log.Errorft("Scanner failed, error: %s", err)
 			detectorWarnings = append(detectorWarnings, err.Error())
 			projectTypeWarningMap[detectorName] = detectorWarnings
 			detected = false
 		}
 
 		if !detected {
-			log.Info("|                                                                              |")
-			log.Info("+------------------------------------------------------------------------------+")
+			log.Printft("|                                                                              |")
+			log.Printft("+------------------------------------------------------------------------------+")
 			fmt.Println()
 			continue
 		}
@@ -91,9 +97,13 @@ func Config(searchDir string) (models.ScanResultModel, error) {
 		detectorWarnings = append(detectorWarnings, projectWarnings...)
 
 		if err != nil {
-			log.Errorf("Analyzer failed, error: %s", err)
+			log.Errorft("Analyzer failed, error: %s", err)
 			detectorWarnings = append(detectorWarnings, err.Error())
 			projectTypeWarningMap[detectorName] = detectorWarnings
+
+			log.Printft("|                                                                              |")
+			log.Printft("+------------------------------------------------------------------------------+")
+			fmt.Println()
 			continue
 		}
 
@@ -103,20 +113,31 @@ func Config(searchDir string) (models.ScanResultModel, error) {
 		// Generate configs
 		configs, err := detector.Configs()
 		if err != nil {
-			return models.ScanResultModel{}, fmt.Errorf("Failed create configs, error: %s", err)
+			log.Errorft("Failed to generate config, error: %s", err)
+			detectorErrors = append(detectorErrors, err.Error())
+			projectTypeErrorMap[detectorName] = detectorErrors
+			continue
 		}
 
 		projectTypeConfigMap[detectorName] = configs
 
-		log.Info("|                                                                              |")
-		log.Info("+------------------------------------------------------------------------------+")
+		log.Printft("|                                                                              |")
+		log.Printft("+------------------------------------------------------------------------------+")
+
+		exludedScanners := detector.ExcludedScannerNames()
+		if len(exludedScanners) > 0 {
+			log.Warnft("Scanner will exclude scanners: %v", exludedScanners)
+			excludedScannerNames = append(excludedScannerNames, exludedScanners...)
+		}
+
 		fmt.Println()
 	}
 	// ---
 
 	return models.ScanResultModel{
-		OptionsMap:  projectTypeOptionMap,
-		ConfigsMap:  projectTypeConfigMap,
-		WarningsMap: projectTypeWarningMap,
-	}, nil
+		PlatformOptionMap:    projectTypeOptionMap,
+		PlatformConfigMapMap: projectTypeConfigMap,
+		PlatformWarningsMap:  projectTypeWarningMap,
+		PlatformErrorsMap:    projectTypeErrorMap,
+	}
 }

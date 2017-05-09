@@ -1,9 +1,10 @@
 package scanner
 
 import (
+	"errors"
 	"fmt"
 
-	yaml "gopkg.in/yaml.v1"
+	yaml "gopkg.in/yaml.v2"
 
 	"github.com/bitrise-core/bitrise-init/models"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
@@ -16,8 +17,21 @@ func askForOptionValue(option models.OptionModel) (string, string, error) {
 
 	selectedValue := ""
 	if len(optionValues) == 1 {
-		selectedValue = optionValues[0]
+		if optionValues[0] == "_" {
+			// provide option value
+			question := fmt.Sprintf("Provide: %s", option.Title)
+			answer, err := goinp.AskForString(question)
+			if err != nil {
+				return "", "", err
+			}
+
+			selectedValue = answer
+		} else {
+			// auto select the only one value
+			selectedValue = optionValues[0]
+		}
 	} else {
+		// select from values
 		question := fmt.Sprintf("Select: %s", option.Title)
 		answer, err := goinp.SelectFromStrings(question, optionValues)
 		if err != nil {
@@ -44,23 +58,41 @@ func AskForOptions(options models.OptionModel) (string, []envmanModels.Environme
 		}
 
 		if optionEnvKey == "" {
+			// last option selected, config got
 			configPth = selectedValue
-		} else {
+			return nil
+		} else if optionEnvKey != "_" {
+			// env's value selected
 			appEnvs = append(appEnvs, envmanModels.EnvironmentItemModel{
 				optionEnvKey: selectedValue,
 			})
 		}
 
-		nestedOptions, found := option.ValueMap[selectedValue]
-		if !found {
-			return nil
+		var nestedOptions *models.OptionModel
+		if len(option.ChildOptionMap) == 1 {
+			// auto select the next option
+			for _, childOption := range option.ChildOptionMap {
+				nestedOptions = childOption
+				break
+			}
+		} else {
+			// go to the next option, based on the selected value
+			childOptions, found := option.ChildOptionMap[selectedValue]
+			if !found {
+				return nil
+			}
+			nestedOptions = childOptions
 		}
 
-		return walkDepth(nestedOptions)
+		return walkDepth(*nestedOptions)
 	}
 
 	if err := walkDepth(options); err != nil {
 		return "", []envmanModels.EnvironmentItemModel{}, err
+	}
+
+	if configPth == "" {
+		return "", nil, errors.New("no config selected")
 	}
 
 	return configPth, appEnvs, nil
@@ -72,19 +104,27 @@ func AskForConfig(scanResult models.ScanResultModel) (bitriseModels.BitriseDataM
 	//
 	// Select platform
 	platforms := []string{}
-	for platform := range scanResult.OptionsMap {
+	for platform := range scanResult.PlatformOptionMap {
 		platforms = append(platforms, platform)
 	}
 
-	platform, err := goinp.SelectFromStrings("Select platform", platforms)
-	if err != nil {
-		return bitriseModels.BitriseDataModel{}, err
+	platform := ""
+	if len(platforms) == 0 {
+		return bitriseModels.BitriseDataModel{}, errors.New("no platform detected")
+	} else if len(platforms) == 1 {
+		platform = platforms[0]
+	} else {
+		var err error
+		platform, err = goinp.SelectFromStrings("Select platform", platforms)
+		if err != nil {
+			return bitriseModels.BitriseDataModel{}, err
+		}
 	}
 	// ---
 
 	//
 	// Select config
-	options, ok := scanResult.OptionsMap[platform]
+	options, ok := scanResult.PlatformOptionMap[platform]
 	if !ok {
 		return bitriseModels.BitriseDataModel{}, fmt.Errorf("invalid platform selected: %s", platform)
 	}
@@ -97,7 +137,7 @@ func AskForConfig(scanResult models.ScanResultModel) (bitriseModels.BitriseDataM
 
 	//
 	// Build config
-	configMap := scanResult.ConfigsMap[platform]
+	configMap := scanResult.PlatformConfigMapMap[platform]
 	configStr := configMap[configPth]
 
 	var config bitriseModels.BitriseDataModel

@@ -6,6 +6,7 @@ import (
 	"path"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/bitrise-core/bitrise-plugins-init/version"
 	"github.com/urfave/cli"
 )
 
@@ -23,7 +24,7 @@ func Run() {
 
 	app.Name = path.Base(os.Args[0])
 	app.Usage = "Init bitrise config"
-	app.Version = "0.9.0"
+	app.Version = version.VERSION
 
 	app.Author = ""
 	app.Email = ""

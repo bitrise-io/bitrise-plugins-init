@@ -39,7 +39,7 @@ func action(c *cli.Context) error {
 			return fmt.Errorf("failed to create empty config, error: %s", err)
 		}
 
-		emptyConfigs, ok := scanResult.ConfigsMap["custom"]
+		emptyConfigs, ok := scanResult.PlatformConfigMapMap["custom"]
 		if !ok {
 			return fmt.Errorf("no default empty configs found, error: %s", err)
 		}
@@ -62,12 +62,9 @@ func action(c *cli.Context) error {
 			return fmt.Errorf("failed to get current directory, error: %s", err)
 		}
 
-		scanResult, err := scanner.Config(currentDir)
-		if err != nil {
-			return err
-		}
+		scanResult := scanner.Config(currentDir)
 
-		if len(scanResult.OptionsMap) == 0 {
+		if len(scanResult.PlatformOptionMap) == 0 {
 			return fmt.Errorf("no known platform type detected")
 		}
 
@@ -91,7 +88,7 @@ func action(c *cli.Context) error {
 
 	log.Infof("bitrise config generated at: %s", configPth)
 
-	secrets := envmanModels.EnvsYMLModel{}
+	secrets := envmanModels.EnvsSerializeModel{}
 	secretsBytes, err := yaml.Marshal(secrets)
 	if err != nil {
 		return fmt.Errorf("failed to marshal bitrise secrets, error: %s", err)

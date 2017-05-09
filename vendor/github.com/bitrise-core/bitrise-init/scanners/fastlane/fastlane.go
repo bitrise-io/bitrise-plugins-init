@@ -2,112 +2,53 @@ package fastlane
 
 import (
 	"fmt"
-	"path/filepath"
-	"regexp"
-	"sort"
-	"strings"
 
 	"gopkg.in/yaml.v2"
 
 	"github.com/bitrise-core/bitrise-init/models"
 	"github.com/bitrise-core/bitrise-init/steps"
 	"github.com/bitrise-core/bitrise-init/utility"
-	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
-	"github.com/bitrise-io/go-utils/fileutil"
+	"github.com/bitrise-io/go-utils/log"
 )
 
-var (
-	log = utility.NewLogger()
+const scannerName = "fastlane"
+
+const (
+	configName        = "fastlane-config"
+	defaultConfigName = "default-fastlane-config"
+)
+
+// Step Inputs
+const (
+	laneInputKey    = "lane"
+	laneInputTitle  = "Fastlane lane"
+	laneInputEnvKey = "FASTLANE_LANE"
 )
 
 const (
-	scannerName = "fastlane"
+	workDirInputKey    = "work_dir"
+	workDirInputTitle  = "Working directory"
+	workDirInputEnvKey = "FASTLANE_WORK_DIR"
 )
 
 const (
-	fastfileBasePath = "Fastfile"
-)
-
-const (
-	laneKey    = "lane"
-	laneTitle  = "Fastlane lane"
-	laneEnvKey = "FASTLANE_LANE"
-
-	workDirKey    = "work_dir"
-	workDirTitle  = "Working directory"
-	workDirEnvKey = "FASTLANE_WORK_DIR"
-
 	fastlaneXcodeListTimeoutEnvKey   = "FASTLANE_XCODE_LIST_TIMEOUT"
 	fastlaneXcodeListTimeoutEnvValue = "120"
 )
 
-//--------------------------------------------------
-// Utility
-//--------------------------------------------------
-
-func filterFastfiles(fileList []string) []string {
-	fastfiles := utility.FilterFilesWithBasPaths(fileList, fastfileBasePath)
-	sort.Sort(utility.ByComponents(fastfiles))
-
-	return fastfiles
-}
-
-func inspectFastfileContent(content string) ([]string, error) {
-	lanes := []string{}
-
-	// lane :test_and_snapshot do
-	regexp := regexp.MustCompile(`^ *lane :(.+) do`)
-
-	lines := strings.Split(content, "\n")
-	for _, line := range lines {
-		matches := regexp.FindStringSubmatch(line)
-		if len(matches) == 2 {
-			lane := matches[1]
-			lanes = append(lanes, lane)
-		}
-	}
-
-	return lanes, nil
-}
-
-func inspectFastfile(fastFile string) ([]string, error) {
-	content, err := fileutil.ReadStringFromFile(fastFile)
-	if err != nil {
-		return []string{}, err
-	}
-
-	return inspectFastfileContent(content)
-}
-
-// Returns:
-//  - fastlane dir's parent, if Fastfile is in fastlane dir (test/fastlane/Fastfile)
-//  - Fastfile's dir, if Fastfile is NOT in fastlane dir (test/Fastfile)
-func fastlaneWorkDir(fastfilePth string) string {
-	dirPth := filepath.Dir(fastfilePth)
-	dirName := filepath.Base(dirPth)
-	if dirName == "fastlane" {
-		return filepath.Dir(dirPth)
-	}
-	return dirPth
-}
-
-func configName() string {
-	return "fastlane-config"
-}
-
-func defaultConfigName() string {
-	return "default-fastlane-config"
-}
-
-//--------------------------------------------------
-// Scanner
-//--------------------------------------------------
+//------------------
+// ScannerInterface
+//------------------
 
 // Scanner ...
 type Scanner struct {
-	SearchDir string
 	Fastfiles []string
+}
+
+// NewScanner ...
+func NewScanner() *Scanner {
+	return &Scanner{}
 }
 
 // Name ...
@@ -115,192 +56,157 @@ func (scanner Scanner) Name() string {
 	return scannerName
 }
 
-// Configure ...
-func (scanner *Scanner) Configure(searchDir string) {
-	scanner.SearchDir = searchDir
-}
-
 // DetectPlatform ...
-func (scanner *Scanner) DetectPlatform() (bool, error) {
-	fileList, err := utility.FileList(scanner.SearchDir)
+func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
+	fileList, err := utility.ListPathInDirSortedByComponents(searchDir, true)
 	if err != nil {
-		return false, fmt.Errorf("failed to search for files in (%s), error: %s", scanner.SearchDir, err)
+		return false, fmt.Errorf("failed to search for files in (%s), error: %s", searchDir, err)
 	}
 
 	// Search for Fastfile
-	log.Info("Searching for Fastfiles")
+	log.Infoft("Searching for Fastfiles")
 
-	fastfiles := filterFastfiles(fileList)
+	fastfiles, err := utility.FilterFastfiles(fileList)
+	if err != nil {
+		return false, fmt.Errorf("failed to search for Fastfile in (%s), error: %s", searchDir, err)
+	}
+
 	scanner.Fastfiles = fastfiles
 
-	log.Details("%d Fastfile(s) detected", len(fastfiles))
+	log.Printft("%d Fastfiles detected", len(fastfiles))
 	for _, file := range fastfiles {
-		log.Details("- %s", file)
+		log.Printft("- %s", file)
 	}
 
 	if len(fastfiles) == 0 {
-		log.Details("platform not detected")
+		log.Printft("platform not detected")
 		return false, nil
 	}
 
-	log.Done("Platform detected")
+	log.Doneft("Platform detected")
 
 	return true, nil
 }
 
+// ExcludedScannerNames ...
+func (scanner *Scanner) ExcludedScannerNames() []string {
+	return []string{}
+}
+
 // Options ...
 func (scanner *Scanner) Options() (models.OptionModel, models.Warnings, error) {
-	workDirOption := models.NewOptionModel(workDirTitle, workDirEnvKey)
 	warnings := models.Warnings{}
 
 	isValidFastfileFound := false
 
 	// Inspect Fastfiles
-	for _, fastfile := range scanner.Fastfiles {
-		log.Info("Inspecting Fastfile: %s", fastfile)
 
-		lanes, err := inspectFastfile(fastfile)
+	workDirOption := models.NewOption(workDirInputTitle, workDirInputEnvKey)
+
+	for _, fastfile := range scanner.Fastfiles {
+		log.Infoft("Inspecting Fastfile: %s", fastfile)
+
+		workDir := utility.FastlaneWorkDir(fastfile)
+		log.Printft("fastlane work dir: %s", workDir)
+
+		lanes, err := utility.InspectFastfile(fastfile)
 		if err != nil {
-			log.Warn("Failed to inspect Fastfile, error: %s", err)
+			log.Warnft("Failed to inspect Fastfile, error: %s", err)
 			warnings = append(warnings, fmt.Sprintf("Failed to inspect Fastfile (%s), error: %s", fastfile, err))
 			continue
 		}
 
-		log.Details("%d lane(s) found", len(lanes))
-		for _, lane := range lanes {
-			log.Details("- %s", lane)
-		}
+		log.Printft("%d lanes found", len(lanes))
 
 		if len(lanes) == 0 {
-			log.Warn("No lanes found")
+			log.Warnft("No lanes found")
 			warnings = append(warnings, fmt.Sprintf("No lanes found for Fastfile: %s", fastfile))
 			continue
 		}
 
 		isValidFastfileFound = true
 
-		workDir := fastlaneWorkDir(fastfile)
+		laneOption := models.NewOption(laneInputTitle, laneInputEnvKey)
+		workDirOption.AddOption(workDir, laneOption)
 
-		log.Details("fastlane work dir: %s", workDir)
-
-		configOption := models.NewEmptyOptionModel()
-		configOption.Config = configName()
-
-		laneOption := models.NewOptionModel(laneTitle, laneEnvKey)
 		for _, lane := range lanes {
-			laneOption.ValueMap[lane] = configOption
-		}
+			log.Printft("- %s", lane)
 
-		workDirOption.ValueMap[workDir] = laneOption
+			configOption := models.NewConfigOption(configName)
+			laneOption.AddConfig(lane, configOption)
+		}
 	}
 
 	if !isValidFastfileFound {
-		log.Error("No valid Fastfile found")
+		log.Errorft("No valid Fastfile found")
 		warnings = append(warnings, "No valid Fastfile found")
 		return models.OptionModel{}, warnings, nil
 	}
 
-	return workDirOption, warnings, nil
+	return *workDirOption, warnings, nil
 }
 
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionModel {
-	configOption := models.NewEmptyOptionModel()
-	configOption.Config = defaultConfigName()
+	workDirOption := models.NewOption(workDirInputTitle, workDirInputEnvKey)
 
-	workDirOption := models.NewOptionModel(workDirTitle, workDirEnvKey)
-	laneOption := models.NewOptionModel(laneTitle, laneEnvKey)
+	laneOption := models.NewOption(laneInputTitle, laneInputEnvKey)
+	workDirOption.AddOption("_", laneOption)
 
-	laneOption.ValueMap["_"] = configOption
-	workDirOption.ValueMap["_"] = laneOption
+	configOption := models.NewConfigOption(defaultConfigName)
+	laneOption.AddConfig("_", configOption)
 
-	return workDirOption
+	return *workDirOption
 }
 
 // Configs ...
 func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
-	stepList := []bitriseModels.StepListItemModel{}
-	bitriseDataMap := models.BitriseConfigMap{}
+	configBuilder := models.NewDefaultConfigBuilder()
 
-	// ActivateSSHKey
-	stepList = append(stepList, steps.ActivateSSHKeyStepListItem())
+	configBuilder.AppendPreparStepList(steps.CertificateAndProfileInstallerStepListItem())
 
-	// GitClone
-	stepList = append(stepList, steps.GitCloneStepListItem())
+	configBuilder.AppendMainStepList(steps.FastlaneStepListItem(
+		envmanModels.EnvironmentItemModel{laneInputKey: "$" + laneInputEnvKey},
+		envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey},
+	))
 
-	// Script
-	stepList = append(stepList, steps.ScriptSteplistItem(steps.TemplateScriptStepTitiel))
-
-	// CertificateAndProfileInstaller
-	stepList = append(stepList, steps.CertificateAndProfileInstallerStepListItem())
-
-	// Fastlane
-	inputs := []envmanModels.EnvironmentItemModel{
-		envmanModels.EnvironmentItemModel{laneKey: "$" + laneEnvKey},
-		envmanModels.EnvironmentItemModel{workDirKey: "$" + workDirEnvKey},
-	}
-	stepList = append(stepList, steps.FastlaneStepListItem(inputs))
-
-	// DeployToBitriseIo
-	stepList = append(stepList, steps.DeployToBitriseIoStepListItem())
-
-	// App envs
-	appEnvs := []envmanModels.EnvironmentItemModel{
-		envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue},
-	}
-
-	bitriseData := models.BitriseDataWithDefaultTriggerMapAndAppEnvsAndPrimaryWorkflowSteps(appEnvs, stepList)
-	data, err := yaml.Marshal(bitriseData)
+	config, err := configBuilder.Generate(scannerName, envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue})
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
 
-	configName := configName()
-	bitriseDataMap[configName] = string(data)
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return models.BitriseConfigMap{}, err
+	}
 
-	return bitriseDataMap, nil
+	return models.BitriseConfigMap{
+		configName: string(data),
+	}, nil
 }
 
 // DefaultConfigs ...
 func (scanner *Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
-	stepList := []bitriseModels.StepListItemModel{}
-	bitriseDataMap := models.BitriseConfigMap{}
+	configBuilder := models.NewDefaultConfigBuilder()
 
-	// ActivateSSHKey
-	stepList = append(stepList, steps.ActivateSSHKeyStepListItem())
+	configBuilder.AppendPreparStepList(steps.CertificateAndProfileInstallerStepListItem())
 
-	// GitClone
-	stepList = append(stepList, steps.GitCloneStepListItem())
+	configBuilder.AppendMainStepList(steps.FastlaneStepListItem(
+		envmanModels.EnvironmentItemModel{laneInputKey: "$" + laneInputEnvKey},
+		envmanModels.EnvironmentItemModel{workDirInputKey: "$" + workDirInputEnvKey},
+	))
 
-	// Script
-	stepList = append(stepList, steps.ScriptSteplistItem(steps.TemplateScriptStepTitiel))
-
-	// CertificateAndProfileInstaller
-	stepList = append(stepList, steps.CertificateAndProfileInstallerStepListItem())
-
-	// Fastlane
-	inputs := []envmanModels.EnvironmentItemModel{
-		envmanModels.EnvironmentItemModel{laneKey: "$" + laneEnvKey},
-		envmanModels.EnvironmentItemModel{workDirKey: "$" + workDirEnvKey},
-	}
-	stepList = append(stepList, steps.FastlaneStepListItem(inputs))
-
-	// DeployToBitriseIo
-	stepList = append(stepList, steps.DeployToBitriseIoStepListItem())
-
-	// App envs
-	appEnvs := []envmanModels.EnvironmentItemModel{
-		envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue},
-	}
-
-	bitriseData := models.BitriseDataWithDefaultTriggerMapAndAppEnvsAndPrimaryWorkflowSteps(appEnvs, stepList)
-	data, err := yaml.Marshal(bitriseData)
+	config, err := configBuilder.Generate(scannerName, envmanModels.EnvironmentItemModel{fastlaneXcodeListTimeoutEnvKey: fastlaneXcodeListTimeoutEnvValue})
 	if err != nil {
 		return models.BitriseConfigMap{}, err
 	}
 
-	configName := defaultConfigName()
-	bitriseDataMap[configName] = string(data)
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return models.BitriseConfigMap{}, err
+	}
 
-	return bitriseDataMap, nil
+	return models.BitriseConfigMap{
+		defaultConfigName: string(data),
+	}, nil
 }
