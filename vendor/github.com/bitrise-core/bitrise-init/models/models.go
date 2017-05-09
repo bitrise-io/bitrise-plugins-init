@@ -1,27 +1,17 @@
 package models
 
-import (
-	bitriseModels "github.com/bitrise-io/bitrise/models"
-	envmanModels "github.com/bitrise-io/envman/models"
-)
-
-const (
-	formatVersion        = "1.3.1"
-	defaultSteplibSource = "https://github.com/bitrise-io/bitrise-steplib.git"
-	primaryWorkflowID    = "primary"
-	deployWorkflowID     = "deploy"
-)
-
-// OptionValueMap ...
-type OptionValueMap map[string]OptionModel
+import bitriseModels "github.com/bitrise-io/bitrise/models"
 
 // OptionModel ...
 type OptionModel struct {
-	Title  string `json:"title,omitempty"  yaml:"title,omitempty"`
-	EnvKey string `json:"env_key,omitempty"  yaml:"env_key,omitempty"`
+	Title  string `json:"title,omitempty" yaml:"title,omitempty"`
+	EnvKey string `json:"env_key,omitempty" yaml:"env_key,omitempty"`
 
-	ValueMap OptionValueMap `json:"value_map,omitempty"  yaml:"value_map,omitempty"`
-	Config   string         `json:"config,omitempty"  yaml:"config,omitempty"`
+	ChildOptionMap map[string]*OptionModel `json:"value_map,omitempty" yaml:"value_map,omitempty"`
+	Config         string                  `json:"config,omitempty" yaml:"config,omitempty"`
+
+	Components []string     `json:"-" yaml:"-"`
+	Head       *OptionModel `json:"-" yaml:"-"`
 }
 
 // BitriseConfigMap ...
@@ -30,131 +20,37 @@ type BitriseConfigMap map[string]string
 // Warnings ...
 type Warnings []string
 
+// Errors ...
+type Errors []string
+
 // ScanResultModel ...
 type ScanResultModel struct {
-	OptionsMap  map[string]OptionModel      `json:"options,omitempty" yaml:"options,omitempty"`
-	ConfigsMap  map[string]BitriseConfigMap `json:"configs,omitempty" yaml:"configs,omitempty"`
-	WarningsMap map[string]Warnings         `json:"warnings,omitempty" yaml:"warnings,omitempty"`
+	PlatformOptionMap    map[string]OptionModel      `json:"options,omitempty" yaml:"options,omitempty"`
+	PlatformConfigMapMap map[string]BitriseConfigMap `json:"configs,omitempty" yaml:"configs,omitempty"`
+	PlatformWarningsMap  map[string]Warnings         `json:"warnings,omitempty" yaml:"warnings,omitempty"`
+	PlatformErrorsMap    map[string]Errors           `json:"errors,omitempty" yaml:"errors,omitempty"`
 }
 
-// NewOptionModel ...
-func NewOptionModel(title, envKey string) OptionModel {
-	return OptionModel{
-		Title:  title,
-		EnvKey: envKey,
+type workflowBuilderModel struct {
+	PrepareSteps    []bitriseModels.StepListItemModel
+	DependencySteps []bitriseModels.StepListItemModel
+	MainSteps       []bitriseModels.StepListItemModel
+	DeploySteps     []bitriseModels.StepListItemModel
 
-		ValueMap: OptionValueMap{},
-	}
+	steps []bitriseModels.StepListItemModel
 }
 
-// NewEmptyOptionModel ...
-func NewEmptyOptionModel() OptionModel {
-	return OptionModel{
-		ValueMap: OptionValueMap{},
-	}
-}
+// WorkflowID ...
+type WorkflowID string
 
-// GetValues ...
-func (option OptionModel) GetValues() []string {
-	if option.Config != "" {
-		return []string{option.Config}
-	}
+const (
+	// PrimaryWorkflowID ...
+	PrimaryWorkflowID WorkflowID = "primary"
+	// DeployWorkflowID ...
+	DeployWorkflowID WorkflowID = "deploy"
+)
 
-	values := []string{}
-	for value := range option.ValueMap {
-		values = append(values, value)
-	}
-	return values
-}
-
-// BitriseDataWithDefaultTriggerMapAndAppEnvsAndPrimaryWorkflowSteps ...
-func BitriseDataWithDefaultTriggerMapAndAppEnvsAndPrimaryWorkflowSteps(appEnvs []envmanModels.EnvironmentItemModel, steps []bitriseModels.StepListItemModel) bitriseModels.BitriseDataModel {
-	workflows := map[string]bitriseModels.WorkflowModel{
-		primaryWorkflowID: bitriseModels.WorkflowModel{
-			Steps: steps,
-		},
-	}
-
-	triggerMap := []bitriseModels.TriggerMapItemModel{
-		bitriseModels.TriggerMapItemModel{
-			Pattern:              "*",
-			IsPullRequestAllowed: true,
-			WorkflowID:           primaryWorkflowID,
-		},
-	}
-
-	app := bitriseModels.AppModel{
-		Environments: appEnvs,
-	}
-
-	bitriseData := bitriseModels.BitriseDataModel{
-		FormatVersion:        formatVersion,
-		DefaultStepLibSource: defaultSteplibSource,
-		TriggerMap:           triggerMap,
-		Workflows:            workflows,
-		App:                  app,
-	}
-
-	return bitriseData
-}
-
-// DefaultBitriseConfigForIos ...
-func DefaultBitriseConfigForIos(ciSteps, deploySteps []bitriseModels.StepListItemModel) bitriseModels.BitriseDataModel {
-	workflows := map[string]bitriseModels.WorkflowModel{
-		primaryWorkflowID: bitriseModels.WorkflowModel{
-			Steps: ciSteps,
-		},
-		deployWorkflowID: bitriseModels.WorkflowModel{
-			Steps: deploySteps,
-		},
-	}
-
-	triggerMap := []bitriseModels.TriggerMapItemModel{
-		bitriseModels.TriggerMapItemModel{
-			PushBranch: "*",
-			WorkflowID: primaryWorkflowID,
-		},
-		bitriseModels.TriggerMapItemModel{
-			PullRequestSourceBranch: "*",
-			WorkflowID:              primaryWorkflowID,
-		},
-	}
-
-	bitriseData := bitriseModels.BitriseDataModel{
-		FormatVersion:        formatVersion,
-		DefaultStepLibSource: defaultSteplibSource,
-		TriggerMap:           triggerMap,
-		Workflows:            workflows,
-	}
-
-	return bitriseData
-}
-
-// BitriseDataWithDefaultTriggerMapAndPrimaryWorkflowSteps ...
-func BitriseDataWithDefaultTriggerMapAndPrimaryWorkflowSteps(steps []bitriseModels.StepListItemModel) bitriseModels.BitriseDataModel {
-	workflows := map[string]bitriseModels.WorkflowModel{
-		primaryWorkflowID: bitriseModels.WorkflowModel{
-			Steps: steps,
-		},
-	}
-
-	triggerMap := []bitriseModels.TriggerMapItemModel{
-		bitriseModels.TriggerMapItemModel{
-			PushBranch: "*",
-			WorkflowID: primaryWorkflowID,
-		},
-		bitriseModels.TriggerMapItemModel{
-			PullRequestSourceBranch: "*",
-			WorkflowID:              primaryWorkflowID,
-		},
-	}
-
-	bitriseData := bitriseModels.BitriseDataModel{
-		FormatVersion:        formatVersion,
-		DefaultStepLibSource: defaultSteplibSource,
-		TriggerMap:           triggerMap,
-		Workflows:            workflows,
-	}
-
-	return bitriseData
+// ConfigBuilderModel ...
+type ConfigBuilderModel struct {
+	workflowBuilderMap map[WorkflowID]*workflowBuilderModel
 }

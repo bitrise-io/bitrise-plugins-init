@@ -6,12 +6,6 @@ import (
 	envmanModels "github.com/bitrise-io/envman/models"
 )
 
-// GlobalStepInfoModel ...
-type GlobalStepInfoModel struct {
-	RemovalDate    string `json:"removal_date,omitempty" yaml:"removal_date,omitempty"`
-	DeprecateNotes string `json:"deprecate_notes,omitempty" yaml:"deprecate_notes,omitempty"`
-}
-
 // StepSourceModel ...
 type StepSourceModel struct {
 	Git    string `json:"git,omitempty" yaml:"git,omitempty"`
@@ -111,6 +105,13 @@ type StepModel struct {
 	Outputs []envmanModels.EnvironmentItemModel `json:"outputs,omitempty" yaml:"outputs,omitempty"`
 }
 
+// StepVersionModel ...
+type StepVersionModel struct {
+	Step                   StepModel
+	Version                string
+	LatestAvailableVersion string
+}
+
 // StepGroupInfoModel ...
 type StepGroupInfoModel struct {
 	RemovalDate    string            `json:"removal_date,omitempty" yaml:"removal_date,omitempty"`
@@ -123,6 +124,15 @@ type StepGroupModel struct {
 	Info                StepGroupInfoModel   `json:"info,omitempty" yaml:"info,omitempty"`
 	LatestVersionNumber string               `json:"latest_version_number,omitempty" yaml:"latest_version_number,omitempty"`
 	Versions            map[string]StepModel `json:"versions,omitempty" yaml:"versions,omitempty"`
+}
+
+// LatestVersion ...
+func (stepGroup StepGroupModel) LatestVersion() (StepModel, bool) {
+	step, found := stepGroup.Versions[stepGroup.LatestVersionNumber]
+	if !found {
+		return StepModel{}, false
+	}
+	return step, true
 }
 
 // StepHash ...
@@ -156,18 +166,13 @@ type EnvInfoModel struct {
 
 // StepInfoModel ...
 type StepInfoModel struct {
-	ID            string              `json:"step_id,omitempty" yaml:"step_id,omitempty"`
-	Title         string              `json:"step_title,omitempty" yaml:"step_title,omitempty"`
-	Version       string              `json:"step_version,omitempty" yaml:"step_version,omitempty"`
-	Latest        string              `json:"latest_version,omitempty" yaml:"latest_version,omitempty"`
-	Description   string              `json:"description,omitempty" yaml:"description,omitempty"`
-	Source        string              `json:"source,omitempty" yaml:"source,omitempty"`
-	StepLib       string              `json:"steplib,omitempty" yaml:"steplib,omitempty"`
-	SupportURL    string              `json:"support_url,omitempty" yaml:"support_url,omitempty"`
-	SourceCodeURL string              `json:"source_code_url,omitempty" yaml:"source_code_url,omitempty"`
-	Inputs        []EnvInfoModel      `json:"inputs,omitempty" yaml:"inputs,omitempty"`
-	Outputs       []EnvInfoModel      `json:"outputs,omitempty" yaml:"outputs,omitempty"`
-	GlobalInfo    GlobalStepInfoModel `json:"global_info,omitempty" yaml:"global_info,omitempty"`
+	Library       string             `json:"library,omitempty" yaml:"library,omitempty"`
+	ID            string             `json:"id,omitempty" yaml:"id,omitempty"`
+	Version       string             `json:"version,omitempty" yaml:"version,omitempty"`
+	LatestVersion string             `json:"latest_version,omitempty" yaml:"latest_version,omitempty"`
+	GroupInfo     StepGroupInfoModel `json:"info,omitempty" yaml:"info,omitempty"`
+	Step          StepModel          `json:"step,omitempty" yaml:"step,omitempty"`
+	DefinitionPth string             `json:"definition_pth,omitempty" yaml:"definition_pth,omitempty"`
 }
 
 // StepListModel ...
@@ -176,12 +181,8 @@ type StepListModel struct {
 	Steps   []string `json:"steps,omitempty" yaml:"steps,omitempty"`
 }
 
-// StepLibURIModel ...
-type StepLibURIModel struct {
-	URI string `json:"uri,omitempty" yaml:"uri,omitempty"`
-}
-
-// StepLibURIsModel ...
-type StepLibURIsModel struct {
-	StepLibURIs []StepLibURIModel `json:"steplibs,omitempty" yaml:"steplibs,omitempty"`
+// SteplibInfoModel ...
+type SteplibInfoModel struct {
+	URI      string `json:"uri,omitempty" yaml:"uri,omitempty"`
+	SpecPath string `json:"spec_path,omitempty" yaml:"spec_path,omitempty"`
 }
