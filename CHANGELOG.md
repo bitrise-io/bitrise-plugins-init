@@ -1,6 +1,11 @@
-## Changelog (Current version: 0.9.1)
+## Changelog (Current version: 0.9.2)
 
 -----------------
+
+### 0.9.2 (2017 May 10)
+
+* [dca259d] prepare for 0.9.2
+* [cac1aa5] tests & custom config fix (#6)
 
 ### 0.9.1 (2017 May 09)
 
@@ -9,4 +14,4 @@
 
 -----------------
 
-Updated: 2017 May 09
+Updated: 2017 May 10
