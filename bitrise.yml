@@ -99,7 +99,7 @@ workflows:
             #!/bin/bash
             set -ex
 
-            # build the new bitrise
+            # build the new bitrise-plugin-init
             current_dir=$(pwd)
             current_bin=$current_dir/_tmp/${BIN_NAME}
             go build -o $current_bin

@@ -64,7 +64,7 @@ func Test_HelpTest(t *testing.T) {
 		require.Equal(t, helpStr, out)
 	}
 
-	t.Log("help flag")
+	t.Log("help short flag")
 	{
 		tmpDir, err := pathutil.NormalizedOSTempDirPath("")
 		require.NoError(t, err)

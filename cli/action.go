@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 
@@ -41,12 +40,6 @@ func action(c *cli.Context) error {
 		if err != nil {
 			return fmt.Errorf("failed to create empty config, error: %s", err)
 		}
-
-		bytes, err := json.MarshalIndent(scanResult, "", "/t")
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println(string(bytes))
 
 		customConfigs, ok := scanResult.PlatformConfigMapMap[scanners.CustomProjectType]
 		if !ok {

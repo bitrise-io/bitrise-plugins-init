@@ -3,13 +3,11 @@ package integration
 import (
 	"testing"
 
-	"github.com/bitrise-core/bitrise-plugins-init/version"
+	"github.com/bitrise-io/envman/version"
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/require"
 )
-
-var versionStr = version.VERSION
 
 func Test_VersionTest(t *testing.T) {
 	t.Log("version flag")
@@ -21,10 +19,10 @@ func Test_VersionTest(t *testing.T) {
 		cmd.SetDir(tmpDir)
 		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
 		require.NoError(t, err, out)
-		require.Equal(t, versionStr, out)
+		require.Equal(t, version.VERSION, out)
 	}
 
-	t.Log("version flag")
+	t.Log("version short flag")
 	{
 		tmpDir, err := pathutil.NormalizedOSTempDirPath("")
 		require.NoError(t, err)
@@ -33,6 +31,6 @@ func Test_VersionTest(t *testing.T) {
 		cmd.SetDir(tmpDir)
 		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
 		require.NoError(t, err, out)
-		require.Equal(t, versionStr, out)
+		require.Equal(t, version.VERSION, out)
 	}
 }
