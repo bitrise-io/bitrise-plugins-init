@@ -13,68 +13,68 @@
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/models",
-			"Comment": "1.1.3-12-ge9893f9",
-			"Rev": "e9893f9521399739e619d7bf8f347ea38ccdec73"
+			"Comment": "1.1.3-13-g9cabca5",
+			"Rev": "9cabca501c45297167040cd464283afabfd00ac9"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanner",
-			"Comment": "1.1.3-12-ge9893f9",
-			"Rev": "e9893f9521399739e619d7bf8f347ea38ccdec73"
+			"Comment": "1.1.3-13-g9cabca5",
+			"Rev": "9cabca501c45297167040cd464283afabfd00ac9"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners",
-			"Comment": "1.1.3-12-ge9893f9",
-			"Rev": "e9893f9521399739e619d7bf8f347ea38ccdec73"
+			"Comment": "1.1.3-13-g9cabca5",
+			"Rev": "9cabca501c45297167040cd464283afabfd00ac9"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/android",
-			"Comment": "1.1.3-12-ge9893f9",
-			"Rev": "e9893f9521399739e619d7bf8f347ea38ccdec73"
+			"Comment": "1.1.3-13-g9cabca5",
+			"Rev": "9cabca501c45297167040cd464283afabfd00ac9"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/cordova",
-			"Comment": "1.1.3-12-ge9893f9",
-			"Rev": "e9893f9521399739e619d7bf8f347ea38ccdec73"
+			"Comment": "1.1.3-13-g9cabca5",
+			"Rev": "9cabca501c45297167040cd464283afabfd00ac9"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/fastlane",
-			"Comment": "1.1.3-12-ge9893f9",
-			"Rev": "e9893f9521399739e619d7bf8f347ea38ccdec73"
+			"Comment": "1.1.3-13-g9cabca5",
+			"Rev": "9cabca501c45297167040cd464283afabfd00ac9"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/ios",
-			"Comment": "1.1.3-12-ge9893f9",
-			"Rev": "e9893f9521399739e619d7bf8f347ea38ccdec73"
+			"Comment": "1.1.3-13-g9cabca5",
+			"Rev": "9cabca501c45297167040cd464283afabfd00ac9"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/macos",
-			"Comment": "1.1.3-12-ge9893f9",
-			"Rev": "e9893f9521399739e619d7bf8f347ea38ccdec73"
+			"Comment": "1.1.3-13-g9cabca5",
+			"Rev": "9cabca501c45297167040cd464283afabfd00ac9"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/xamarin",
-			"Comment": "1.1.3-12-ge9893f9",
-			"Rev": "e9893f9521399739e619d7bf8f347ea38ccdec73"
+			"Comment": "1.1.3-13-g9cabca5",
+			"Rev": "9cabca501c45297167040cd464283afabfd00ac9"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/xcode",
-			"Comment": "1.1.3-12-ge9893f9",
-			"Rev": "e9893f9521399739e619d7bf8f347ea38ccdec73"
+			"Comment": "1.1.3-13-g9cabca5",
+			"Rev": "9cabca501c45297167040cd464283afabfd00ac9"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/steps",
-			"Comment": "1.1.3-12-ge9893f9",
-			"Rev": "e9893f9521399739e619d7bf8f347ea38ccdec73"
+			"Comment": "1.1.3-13-g9cabca5",
+			"Rev": "9cabca501c45297167040cd464283afabfd00ac9"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/utility",
-			"Comment": "1.1.3-12-ge9893f9",
-			"Rev": "e9893f9521399739e619d7bf8f347ea38ccdec73"
+			"Comment": "1.1.3-13-g9cabca5",
+			"Rev": "9cabca501c45297167040cd464283afabfd00ac9"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/bitrise/models",
-			"Comment": "1.5.6-14-gc4039d0",
-			"Rev": "c4039d09190ce5b70338a7854543bcca2e2b7baf"
+			"Comment": "1.6.0-2-g3ec4e0d",
+			"Rev": "3ec4e0d51373cf1403e39df71bb6e27fe34be771"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/depman/pathutil",
@@ -91,6 +91,10 @@
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/command",
+			"Rev": "c8163959178ae89a3829ce02e485eef6b2befd22"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/go-utils/command/git",
 			"Rev": "c8163959178ae89a3829ce02e485eef6b2befd22"
 		},
 		{
@@ -135,9 +139,29 @@
 			"Rev": "2dfa286d87ca7ef6e52f871de262de29e7129845"
 		},
 		{
+			"ImportPath": "github.com/davecgh/go-spew/spew",
+			"Comment": "v1.1.0",
+			"Rev": "346938d642f2ec3594ed81d874461961cd0faa76"
+		},
+		{
+			"ImportPath": "github.com/pmezard/go-difflib/difflib",
+			"Comment": "v1.0.0",
+			"Rev": "792786c7400a136282c1664665ae0a8db921c6c2"
+		},
+		{
 			"ImportPath": "github.com/ryanuber/go-glob",
 			"Comment": "v0.1-4-g256dc44",
 			"Rev": "256dc444b735e061061cf46c809487313d5b0065"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/assert",
+			"Comment": "v1.1.4-27-g4d4bfba",
+			"Rev": "4d4bfba8f1d1027c4fdbe371823030df51419987"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/require",
+			"Comment": "v1.1.4-27-g4d4bfba",
+			"Rev": "4d4bfba8f1d1027c4fdbe371823030df51419987"
 		},
 		{
 			"ImportPath": "github.com/urfave/cli",
@@ -147,10 +171,6 @@
 		{
 			"ImportPath": "golang.org/x/sys/unix",
 			"Rev": "9ccfe848b9db8435a24c424abbc07a921adf1df5"
-		},
-		{
-			"ImportPath": "gopkg.in/yaml.v1",
-			"Rev": "9f9df34309c04878acc86042b16630b0f696e1de"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",

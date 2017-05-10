@@ -4,14 +4,16 @@ import (
 	"fmt"
 	"os"
 
+	"gopkg.in/yaml.v2"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/bitrise-core/bitrise-init/scanner"
+	"github.com/bitrise-core/bitrise-init/scanners"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	"github.com/bitrise-io/depman/pathutil"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/urfave/cli"
-	yaml "gopkg.in/yaml.v1"
 )
 
 func action(c *cli.Context) error {
@@ -39,22 +41,22 @@ func action(c *cli.Context) error {
 			return fmt.Errorf("failed to create empty config, error: %s", err)
 		}
 
-		emptyConfigs, ok := scanResult.PlatformConfigMapMap["custom"]
+		customConfigs, ok := scanResult.PlatformConfigMapMap[scanners.CustomProjectType]
 		if !ok {
-			return fmt.Errorf("no default empty configs found, error: %s", err)
+			return fmt.Errorf("no CustomProjectType found found, error: %s", err)
 		}
 
-		emptyConfigStr, ok := emptyConfigs["custom-config"]
+		customConfigStr, ok := customConfigs[scanners.CustomConfigName]
 		if !ok {
+			return fmt.Errorf("no CustomConfig found, error: %s", err)
+		}
+
+		var customConfig bitriseModels.BitriseDataModel
+		if err := yaml.Unmarshal([]byte(customConfigStr), &customConfig); err != nil {
 			return fmt.Errorf("no default empty config found, error: %s", err)
 		}
 
-		var emptyConfig bitriseModels.BitriseDataModel
-		if err := yaml.Unmarshal([]byte(emptyConfigStr), &emptyConfig); err != nil {
-			return fmt.Errorf("no default empty config found, error: %s", err)
-		}
-
-		bitriseConfig = emptyConfig
+		bitriseConfig = customConfig
 	} else {
 		// run scanner
 		currentDir, err := os.Getwd()
