@@ -1,6 +1,11 @@
-## Changelog (Current version: 0.9.2)
+## Changelog (Current version: 0.9.3)
 
 -----------------
+
+### 0.9.3 (2017 May 17)
+
+* [dc5dbd2] prepare for 0.9.3
+* [7e352cb] bitrise-init update (#7)
 
 ### 0.9.2 (2017 May 10)
 
@@ -14,4 +19,4 @@
 
 -----------------
 
-Updated: 2017 May 10
+Updated: 2017 May 17
