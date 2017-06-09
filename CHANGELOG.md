@@ -1,6 +1,10 @@
-## Changelog (Current version: 0.9.3)
+## Changelog (Current version: 0.9.4)
 
 -----------------
+
+### 0.9.4 (2017 Jun 09)
+
+* [be63250] Prepare for 0.9.4
 
 ### 0.9.3 (2017 May 17)
 
@@ -19,4 +23,4 @@
 
 -----------------
 
-Updated: 2017 May 17
+Updated: 2017 Jun 09
