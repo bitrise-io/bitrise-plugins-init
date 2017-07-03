@@ -1,6 +1,11 @@
-## Changelog (Current version: 0.9.5)
+## Changelog (Current version: 0.9.6)
 
 -----------------
+
+### 0.9.6 (2017 Jul 03)
+
+* [2140667] Prepare for 0.9.6
+* [568f23e] godeps-update (#9)
 
 ### 0.9.5 (2017 Jun 13)
 
@@ -28,4 +33,4 @@
 
 -----------------
 
-Updated: 2017 Jun 13
+Updated: 2017 Jul 03
