@@ -13,68 +13,68 @@
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/models",
-			"Comment": "1.4.1",
-			"Rev": "28c33aadb3f87e784913e06a2a250ef4c2093d8e"
+			"Comment": "1.4.2",
+			"Rev": "9682d196e061d16faaa21ef6f973f73e93eb64ae"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanner",
-			"Comment": "1.4.1",
-			"Rev": "28c33aadb3f87e784913e06a2a250ef4c2093d8e"
+			"Comment": "1.4.2",
+			"Rev": "9682d196e061d16faaa21ef6f973f73e93eb64ae"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners",
-			"Comment": "1.4.1",
-			"Rev": "28c33aadb3f87e784913e06a2a250ef4c2093d8e"
+			"Comment": "1.4.2",
+			"Rev": "9682d196e061d16faaa21ef6f973f73e93eb64ae"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/android",
-			"Comment": "1.4.1",
-			"Rev": "28c33aadb3f87e784913e06a2a250ef4c2093d8e"
+			"Comment": "1.4.2",
+			"Rev": "9682d196e061d16faaa21ef6f973f73e93eb64ae"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/cordova",
-			"Comment": "1.4.1",
-			"Rev": "28c33aadb3f87e784913e06a2a250ef4c2093d8e"
+			"Comment": "1.4.2",
+			"Rev": "9682d196e061d16faaa21ef6f973f73e93eb64ae"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/fastlane",
-			"Comment": "1.4.1",
-			"Rev": "28c33aadb3f87e784913e06a2a250ef4c2093d8e"
+			"Comment": "1.4.2",
+			"Rev": "9682d196e061d16faaa21ef6f973f73e93eb64ae"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/ionic",
-			"Comment": "1.4.1",
-			"Rev": "28c33aadb3f87e784913e06a2a250ef4c2093d8e"
+			"Comment": "1.4.2",
+			"Rev": "9682d196e061d16faaa21ef6f973f73e93eb64ae"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/ios",
-			"Comment": "1.4.1",
-			"Rev": "28c33aadb3f87e784913e06a2a250ef4c2093d8e"
+			"Comment": "1.4.2",
+			"Rev": "9682d196e061d16faaa21ef6f973f73e93eb64ae"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/macos",
-			"Comment": "1.4.1",
-			"Rev": "28c33aadb3f87e784913e06a2a250ef4c2093d8e"
+			"Comment": "1.4.2",
+			"Rev": "9682d196e061d16faaa21ef6f973f73e93eb64ae"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/xamarin",
-			"Comment": "1.4.1",
-			"Rev": "28c33aadb3f87e784913e06a2a250ef4c2093d8e"
+			"Comment": "1.4.2",
+			"Rev": "9682d196e061d16faaa21ef6f973f73e93eb64ae"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/xcode",
-			"Comment": "1.4.1",
-			"Rev": "28c33aadb3f87e784913e06a2a250ef4c2093d8e"
+			"Comment": "1.4.2",
+			"Rev": "9682d196e061d16faaa21ef6f973f73e93eb64ae"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/steps",
-			"Comment": "1.4.1",
-			"Rev": "28c33aadb3f87e784913e06a2a250ef4c2093d8e"
+			"Comment": "1.4.2",
+			"Rev": "9682d196e061d16faaa21ef6f973f73e93eb64ae"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/utility",
-			"Comment": "1.4.1",
-			"Rev": "28c33aadb3f87e784913e06a2a250ef4c2093d8e"
+			"Comment": "1.4.2",
+			"Rev": "9682d196e061d16faaa21ef6f973f73e93eb64ae"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/bitrise/models",
@@ -92,43 +92,43 @@
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/colorstring",
-			"Rev": "9c30a7825aa1064e423a0f1dba751fec990b07be"
+			"Rev": "2bf26e59ba80fe2a2fd27055b5a4db8e9ec4d1c2"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/command",
-			"Rev": "9c30a7825aa1064e423a0f1dba751fec990b07be"
+			"Rev": "2bf26e59ba80fe2a2fd27055b5a4db8e9ec4d1c2"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/command/git",
-			"Rev": "9c30a7825aa1064e423a0f1dba751fec990b07be"
+			"Rev": "2bf26e59ba80fe2a2fd27055b5a4db8e9ec4d1c2"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/errorutil",
-			"Rev": "9c30a7825aa1064e423a0f1dba751fec990b07be"
+			"Rev": "2bf26e59ba80fe2a2fd27055b5a4db8e9ec4d1c2"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/fileutil",
-			"Rev": "9c30a7825aa1064e423a0f1dba751fec990b07be"
+			"Rev": "2bf26e59ba80fe2a2fd27055b5a4db8e9ec4d1c2"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/log",
-			"Rev": "9c30a7825aa1064e423a0f1dba751fec990b07be"
+			"Rev": "2bf26e59ba80fe2a2fd27055b5a4db8e9ec4d1c2"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/parseutil",
-			"Rev": "9c30a7825aa1064e423a0f1dba751fec990b07be"
+			"Rev": "2bf26e59ba80fe2a2fd27055b5a4db8e9ec4d1c2"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/pathutil",
-			"Rev": "9c30a7825aa1064e423a0f1dba751fec990b07be"
+			"Rev": "2bf26e59ba80fe2a2fd27055b5a4db8e9ec4d1c2"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/pointers",
-			"Rev": "9c30a7825aa1064e423a0f1dba751fec990b07be"
+			"Rev": "2bf26e59ba80fe2a2fd27055b5a4db8e9ec4d1c2"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/sliceutil",
-			"Rev": "9c30a7825aa1064e423a0f1dba751fec990b07be"
+			"Rev": "2bf26e59ba80fe2a2fd27055b5a4db8e9ec4d1c2"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/goinp/goinp",
@@ -145,8 +145,8 @@
 		},
 		{
 			"ImportPath": "github.com/davecgh/go-spew/spew",
-			"Comment": "v1.1.0",
-			"Rev": "346938d642f2ec3594ed81d874461961cd0faa76"
+			"Comment": "v1.1.0-1-g782f496",
+			"Rev": "782f4967f2dc4564575ca782fe2d04090b5faca8"
 		},
 		{
 			"ImportPath": "github.com/pmezard/go-difflib/difflib",
@@ -170,12 +170,12 @@
 		},
 		{
 			"ImportPath": "github.com/urfave/cli",
-			"Comment": "v1.19.1-43-gcf33a9b",
-			"Rev": "cf33a9befefdd6c6ea1a236ab6d546e797a62cbf"
+			"Comment": "v1.19.1-52-gb892ba3",
+			"Rev": "b892ba3809cd07fcf2b064e166b0c2e16e0147bd"
 		},
 		{
 			"ImportPath": "golang.org/x/sys/unix",
-			"Rev": "0b25a408a50076fbbcae6b7ac0ea5fbb0b085e79"
+			"Rev": "0e0164865330d5cf1c00247be08330bf96e2f87c"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",
