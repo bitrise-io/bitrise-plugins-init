@@ -1,6 +1,11 @@
-## Changelog (Current version: 0.9.6)
+## Changelog (Current version: 0.9.7)
 
 -----------------
+
+### 0.9.7 (2017 Jul 25)
+
+* [49459da] prepare for 0.9.7
+* [b0904aa] scanner update (#10)
 
 ### 0.9.6 (2017 Jul 03)
 
@@ -33,4 +38,4 @@
 
 -----------------
 
-Updated: 2017 Jul 03
+Updated: 2017 Jul 25
