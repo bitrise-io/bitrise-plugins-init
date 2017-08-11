@@ -1,6 +1,11 @@
-## Changelog (Current version: 0.9.7)
+## Changelog (Current version: 0.9.8)
 
 -----------------
+
+### 0.9.8 (2017 Aug 11)
+
+* [761e97c] prepare for 0.9.8
+* [2c0b258] bitrise init update (#11)
 
 ### 0.9.7 (2017 Jul 25)
 
@@ -38,4 +43,4 @@
 
 -----------------
 
-Updated: 2017 Jul 25
+Updated: 2017 Aug 11
