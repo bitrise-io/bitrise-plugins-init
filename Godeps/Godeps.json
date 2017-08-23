@@ -8,73 +8,73 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/Sirupsen/logrus",
-			"Comment": "1.0.2-34-g181d419",
-			"Rev": "181d419aa9e2223811b824e8f0b4af96f9ba9302"
+			"Comment": "v1.0.3-11-g89742ae",
+			"Rev": "89742aefa4b206dcf400792f3bd35b542998eb3b"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/models",
-			"Comment": "1.5.3",
-			"Rev": "4137124337bfa2dfd4fba4d45c8aa92e38c686cf"
+			"Comment": "1.5.5",
+			"Rev": "6adc83e43dd98e49be759f2d0d9b418f3fb2f034"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanner",
-			"Comment": "1.5.3",
-			"Rev": "4137124337bfa2dfd4fba4d45c8aa92e38c686cf"
+			"Comment": "1.5.5",
+			"Rev": "6adc83e43dd98e49be759f2d0d9b418f3fb2f034"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners",
-			"Comment": "1.5.3",
-			"Rev": "4137124337bfa2dfd4fba4d45c8aa92e38c686cf"
+			"Comment": "1.5.5",
+			"Rev": "6adc83e43dd98e49be759f2d0d9b418f3fb2f034"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/android",
-			"Comment": "1.5.3",
-			"Rev": "4137124337bfa2dfd4fba4d45c8aa92e38c686cf"
+			"Comment": "1.5.5",
+			"Rev": "6adc83e43dd98e49be759f2d0d9b418f3fb2f034"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/cordova",
-			"Comment": "1.5.3",
-			"Rev": "4137124337bfa2dfd4fba4d45c8aa92e38c686cf"
+			"Comment": "1.5.5",
+			"Rev": "6adc83e43dd98e49be759f2d0d9b418f3fb2f034"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/fastlane",
-			"Comment": "1.5.3",
-			"Rev": "4137124337bfa2dfd4fba4d45c8aa92e38c686cf"
+			"Comment": "1.5.5",
+			"Rev": "6adc83e43dd98e49be759f2d0d9b418f3fb2f034"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/ionic",
-			"Comment": "1.5.3",
-			"Rev": "4137124337bfa2dfd4fba4d45c8aa92e38c686cf"
+			"Comment": "1.5.5",
+			"Rev": "6adc83e43dd98e49be759f2d0d9b418f3fb2f034"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/ios",
-			"Comment": "1.5.3",
-			"Rev": "4137124337bfa2dfd4fba4d45c8aa92e38c686cf"
+			"Comment": "1.5.5",
+			"Rev": "6adc83e43dd98e49be759f2d0d9b418f3fb2f034"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/macos",
-			"Comment": "1.5.3",
-			"Rev": "4137124337bfa2dfd4fba4d45c8aa92e38c686cf"
+			"Comment": "1.5.5",
+			"Rev": "6adc83e43dd98e49be759f2d0d9b418f3fb2f034"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/reactnative",
-			"Comment": "1.5.3",
-			"Rev": "4137124337bfa2dfd4fba4d45c8aa92e38c686cf"
+			"Comment": "1.5.5",
+			"Rev": "6adc83e43dd98e49be759f2d0d9b418f3fb2f034"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/scanners/xamarin",
-			"Comment": "1.5.3",
-			"Rev": "4137124337bfa2dfd4fba4d45c8aa92e38c686cf"
+			"Comment": "1.5.5",
+			"Rev": "6adc83e43dd98e49be759f2d0d9b418f3fb2f034"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/steps",
-			"Comment": "1.5.3",
-			"Rev": "4137124337bfa2dfd4fba4d45c8aa92e38c686cf"
+			"Comment": "1.5.5",
+			"Rev": "6adc83e43dd98e49be759f2d0d9b418f3fb2f034"
 		},
 		{
 			"ImportPath": "github.com/bitrise-core/bitrise-init/utility",
-			"Comment": "1.5.3",
-			"Rev": "4137124337bfa2dfd4fba4d45c8aa92e38c686cf"
+			"Comment": "1.5.5",
+			"Rev": "6adc83e43dd98e49be759f2d0d9b418f3fb2f034"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/bitrise/models",
@@ -170,24 +170,24 @@
 		},
 		{
 			"ImportPath": "github.com/urfave/cli",
-			"Comment": "v1.20.0",
-			"Rev": "cfb38830724cc34fedffe9a2a29fb54fa9169cd1"
+			"Comment": "v1.20.0-3-gf017f86",
+			"Rev": "f017f86fccc5a039a98f23311f34fdf78b014f78"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/ssh/terminal",
-			"Rev": "b176d7def5d71bdd214203491f89843ed217f420"
+			"Rev": "eb71ad9bd329b5ac0fd0148dd99bd62e8be8e035"
 		},
 		{
 			"ImportPath": "golang.org/x/sys/unix",
-			"Rev": "e42485b6e20ae7d2304ec72e535b103ed350cc02"
+			"Rev": "07c182904dbd53199946ba614a412c61d3c548f5"
 		},
 		{
 			"ImportPath": "golang.org/x/sys/windows",
-			"Rev": "e42485b6e20ae7d2304ec72e535b103ed350cc02"
+			"Rev": "07c182904dbd53199946ba614a412c61d3c548f5"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",
-			"Rev": "25c4ec802a7d637f88d584ab26798e94ad14c13b"
+			"Rev": "eb3733d160e74a9c7e442f435eb3bea458e1d19f"
 		}
 	]
 }
