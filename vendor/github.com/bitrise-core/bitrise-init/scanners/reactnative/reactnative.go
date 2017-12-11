@@ -48,22 +48,22 @@ func (Scanner) Name() string {
 func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 	scanner.searchDir = searchDir
 
-	log.Infoft("Collect package.json files")
+	log.TInfof("Collect package.json files")
 
 	packageJSONPths, err := CollectPackageJSONFiles(searchDir)
 	if err != nil {
 		return false, err
 	}
 
-	log.Printft("%d package.json file detected", len(packageJSONPths))
+	log.TPrintf("%d package.json file detected", len(packageJSONPths))
 
-	log.Infoft("Filter relevant package.json files")
+	log.TInfof("Filter relevant package.json files")
 
 	relevantPackageJSONPths := []string{}
 	iosScanner := ios.NewScanner()
 	androidScanner := android.NewScanner()
 	for _, packageJSONPth := range packageJSONPths {
-		log.Printft("checking: %s", packageJSONPth)
+		log.TPrintf("checking: %s", packageJSONPth)
 
 		projectDir := filepath.Dir(packageJSONPth)
 
@@ -94,7 +94,7 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (bool, error) {
 		if iosProjectDetected || androidProjectDetected {
 			relevantPackageJSONPths = append(relevantPackageJSONPths, packageJSONPth)
 		} else {
-			log.Warnft("no ios nor android project found, skipping package.json file")
+			log.TWarnf("no ios nor android project found, skipping package.json file")
 		}
 	}
 
@@ -241,8 +241,13 @@ func (Scanner) DefaultOptions() models.OptionModel {
 	schemeOption := models.NewOption(ios.SchemeInputTitle, ios.SchemeInputEnvKey)
 	projectPathOption.AddOption("_", schemeOption)
 
-	configOption := models.NewConfigOption(defaultConfigName())
-	schemeOption.AddConfig("_", configOption)
+	exportMethodOption := models.NewOption(ios.IosExportMethodInputTitle, ios.ExportMethodInputEnvKey)
+	schemeOption.AddOption("_", exportMethodOption)
+
+	for _, exportMethod := range ios.IosExportMethods {
+		configOption := models.NewConfigOption(defaultConfigName())
+		exportMethodOption.AddConfig(exportMethod, configOption)
+	}
 
 	return *gradleFileOption
 }
@@ -313,6 +318,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 				configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(
 					envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
 					envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
+					envmanModels.EnvironmentItemModel{ios.ExportMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
 					envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
 				))
 
@@ -385,6 +391,7 @@ func (scanner *Scanner) Configs() (models.BitriseConfigMap, error) {
 				configBuilder.AppendStepListItemsTo(models.PrimaryWorkflowID, steps.XcodeArchiveStepListItem(
 					envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
 					envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
+					envmanModels.EnvironmentItemModel{ios.ExportMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
 					envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
 				))
 
@@ -451,6 +458,7 @@ func (Scanner) DefaultConfigs() (models.BitriseConfigMap, error) {
 	configBuilder.AppendStepListItemsTo(models.DeployWorkflowID, steps.XcodeArchiveStepListItem(
 		envmanModels.EnvironmentItemModel{ios.ProjectPathInputKey: "$" + ios.ProjectPathInputEnvKey},
 		envmanModels.EnvironmentItemModel{ios.SchemeInputKey: "$" + ios.SchemeInputEnvKey},
+		envmanModels.EnvironmentItemModel{ios.ExportMethodInputKey: "$" + ios.ExportMethodInputEnvKey},
 		envmanModels.EnvironmentItemModel{ios.ConfigurationInputKey: "Release"},
 	))
 

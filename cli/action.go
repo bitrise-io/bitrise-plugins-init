@@ -10,9 +10,9 @@ import (
 	"github.com/bitrise-core/bitrise-init/scanner"
 	"github.com/bitrise-core/bitrise-init/scanners"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
-	"github.com/bitrise-io/depman/pathutil"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/fileutil"
+	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/urfave/cli"
 )
 

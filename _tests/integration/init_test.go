@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/bitrise-io/go-utils/command"
-	"github.com/bitrise-io/go-utils/command/git"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/stretchr/testify/require"
 )
@@ -58,7 +57,7 @@ func Test_InitTest(t *testing.T) {
 		require.NoError(t, err)
 
 		sampleAppURL := "https://github.com/bitrise-samples/sample-apps-cordova-with-jasmine.git"
-		require.NoError(t, git.Clone(sampleAppURL, tmpDir))
+		gitClone(t, tmpDir, sampleAppURL)
 
 		cmd := command.New(binPath())
 		cmd.SetDir(tmpDir)
