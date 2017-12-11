@@ -1,6 +1,11 @@
-## Changelog (Current version: 0.9.11)
+## Changelog (Current version: 1.0.0)
 
 -----------------
+
+### 1.0.0 (2017 Dec 11)
+
+* [14e5622] prepare for 1.0.0
+* [5ac66c8] manage deps with dep, bitrise-init update (#15)
 
 ### 0.9.11 (2017 Sep 26)
 
@@ -58,4 +63,4 @@
 
 -----------------
 
-Updated: 2017 Sep 26
+Updated: 2017 Dec 11
