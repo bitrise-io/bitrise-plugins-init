@@ -88,7 +88,7 @@ workflows:
     - script:
         title: Go test
         inputs:
-        - content: go test ./...
+        - content: go test $(go list ./... | grep -v vendor)
 
   integration-test:
     steps:
