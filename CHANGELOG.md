@@ -1,6 +1,12 @@
-## Changelog (Current version: 1.0.0)
+## Changelog (Current version: 1.0.1)
 
 -----------------
+
+### 1.0.1 (2017 Dec 22)
+
+* [234516d] Prepare for 1.0.1
+* [d848acf] Prepare for 1.0.1
+* [0dce543] bitrise-init update - deps update (#16)
 
 ### 1.0.0 (2017 Dec 11)
 
@@ -63,4 +69,4 @@
 
 -----------------
 
-Updated: 2017 Dec 11
+Updated: 2017 Dec 22
