@@ -9,15 +9,29 @@
 
 [[projects]]
   name = "github.com/bitrise-core/bitrise-init"
-  packages = ["models","scanner","scanners","scanners/android","scanners/cordova","scanners/fastlane","scanners/ionic","scanners/ios","scanners/macos","scanners/reactnative","scanners/xamarin","steps","utility"]
-  revision = "e55c84818f6ad06bbe358acd05a5813c661e200d"
-  version = "1.6.2"
+  packages = [
+    "models",
+    "scanner",
+    "scanners",
+    "scanners/android",
+    "scanners/cordova",
+    "scanners/fastlane",
+    "scanners/ionic",
+    "scanners/ios",
+    "scanners/macos",
+    "scanners/reactnative",
+    "scanners/xamarin",
+    "steps",
+    "utility"
+  ]
+  revision = "3e59bfe0fedff80b8df11d1974fc32e198adf5ac"
+  version = "1.6.4"
 
 [[projects]]
   branch = "master"
   name = "github.com/bitrise-io/bitrise"
   packages = ["models"]
-  revision = "c593bcaf0c7ef71b0a6c99896475c31d13af922a"
+  revision = "a6abe29d9393c15f8d96c088f89dc3d21aef6bf3"
 
 [[projects]]
   name = "github.com/bitrise-io/envman"
@@ -28,8 +42,20 @@
 [[projects]]
   branch = "master"
   name = "github.com/bitrise-io/go-utils"
-  packages = ["colorstring","command","command/git","command/rubyscript","errorutil","fileutil","log","parseutil","pathutil","pointers","sliceutil"]
-  revision = "e2d40cad7992353c1f14cc24c86638d9e164bf52"
+  packages = [
+    "colorstring",
+    "command",
+    "command/git",
+    "command/rubyscript",
+    "errorutil",
+    "fileutil",
+    "log",
+    "parseutil",
+    "pathutil",
+    "pointers",
+    "sliceutil"
+  ]
+  revision = "b33f6bcef9b50045d7e62364b354584afc3ee329"
 
 [[projects]]
   branch = "master"
@@ -41,12 +67,15 @@
   branch = "master"
   name = "github.com/bitrise-io/stepman"
   packages = ["models"]
-  revision = "0bd88cfa5b4c5b54d38a388b4daaaf22f4780904"
+  revision = "e51348b28dfc0b167dca0a710714098af893c335"
 
 [[projects]]
   branch = "master"
   name = "github.com/bitrise-tools/go-xcode"
-  packages = ["plistutil","xcodeproj"]
+  packages = [
+    "plistutil",
+    "xcodeproj"
+  ]
   revision = "c23fa74e7b04374fbff484fd12ba87cf64cd89e1"
 
 [[projects]]
@@ -76,26 +105,32 @@
 [[projects]]
   branch = "master"
   name = "github.com/stretchr/testify"
-  packages = ["assert","require"]
+  packages = [
+    "assert",
+    "require"
+  ]
   revision = "2aa2c176b9dab406a6970f6a55f513e8a8c8b18f"
 
 [[projects]]
   branch = "master"
   name = "github.com/urfave/cli"
   packages = ["."]
-  revision = "119bb6564841921ce6f1401e0f5d75317bdd9f4d"
+  revision = "39908eb08fee7c10d842622a114a5c133fb0a3c6"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "94eea52f7b742c7cbe0b03b22f0c4c8631ece122"
+  revision = "d585fd2cc9195196078f516b69daff6744ef5e84"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
-  packages = ["unix","windows"]
-  revision = "b8f5ef32195cae6470b728e8ca677f0dbed1a004"
+  packages = [
+    "unix",
+    "windows"
+  ]
+  revision = "d818ba11af4465e00c1998bd3f8a55603b422290"
 
 [[projects]]
   branch = "v2"
