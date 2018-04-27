@@ -2,6 +2,118 @@
 
 -----------------
 
+## 0.9.40 (2018 Apr 09)
+
+### Release Notes
+
+* go dependencies update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/stepman/releases/download/0.9.40/stepman-$(uname -s)-$(uname -m) > /usr/local/bin/stepman
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/stepman
+```
+
+That's all, you're ready to call `stepman`!
+
+### Release Commits - 0.9.39 -> 0.9.40
+
+* [dc7ade4] Krisztián  Gödrei - prepare for 0.9.40 (2018 Apr 09)
+* [656e6ac] Krisztián Gödrei - dependencies update (#242) (2018 Apr 09)
+
+
+## 0.9.39 (2018 Mar 12)
+
+### Release Notes
+
+* go dependencies update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/stepman/releases/download/0.9.39/stepman-$(uname -s)-$(uname -m) > /usr/local/bin/stepman
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/stepman
+```
+
+That's all, you're ready to call `stepman`!
+
+### Release Commits - 0.9.38 -> 0.9.39
+
+* [1bd8d97] Krisztian Dobmayer - Bump version to 0.9.39 (2018 Mar 12)
+
+
+## 0.9.38 (2018 Feb 12)
+
+### Release Notes
+
+* go dependencies update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/stepman/releases/download/0.9.38/stepman-$(uname -s)-$(uname -m) > /usr/local/bin/stepman
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/stepman
+```
+
+That's all, you're ready to call `stepman`!
+
+### Release Commits - 0.9.37 -> 0.9.38
+
+* [0103a1e] trapacska - Prepare for 0.9.38 (2018 Feb 12)
+* [c04fdd8] Tamas Papik - dep-update & updated README.md (#241) (2018 Feb 12)
+
+
+## 0.9.37 (2018 Jan 09)
+
+### Release Notes
+
+* go dependencies update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/stepman/releases/download/0.9.37/stepman-$(uname -s)-$(uname -m) > /usr/local/bin/stepman
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/stepman
+```
+
+That's all, you're ready to call `stepman`!
+
+### Release Commits - 0.9.36 -> 0.9.37
+
+* [b369231] godrei - prepare for 0.9.37 (2018 Jan 09)
+* [050d3e6] Krisztián Gödrei - dep update (#240) (2018 Jan 09)
+* [e51348b] Krisztián Gödrei - Update CHANGELOG.md (2017 Dec 12)
+
+
 ## 0.9.36 (2017 Dec 12)
 
 ### Release Notes
@@ -1577,4 +1689,4 @@ That's all, you're ready to call `stepman`!
 
 -----------------
 
-Generated at: 2017 Dec 12
+Generated at: 2018 Apr 09
