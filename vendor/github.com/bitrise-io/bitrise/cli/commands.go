@@ -2,33 +2,21 @@ package cli
 
 import "github.com/urfave/cli"
 
+// Flags ...
 const (
-	// JSONParamsKey ...
-	JSONParamsKey = "json-params"
-	// JSONParamsBase64Key ...
+	JSONParamsKey       = "json-params"
 	JSONParamsBase64Key = "json-params-base64"
 
-	// WorkflowKey ...
 	WorkflowKey = "workflow"
 
-	// PatternKey ...
-	PatternKey = "pattern"
-	// PushBranchKey ...
-	PushBranchKey = "push-branch"
-	// PRSourceBranchKey ...
+	PatternKey        = "pattern"
+	PushBranchKey     = "push-branch"
 	PRSourceBranchKey = "pr-source-branch"
-	// PRTargetBranchKey ...
 	PRTargetBranchKey = "pr-target-branch"
 
-	// IncludeWorkflowMetaKey ...
 	IncludeWorkflowMetaKey = "include-workflow-meta"
-
-	// ConfigKey ...
-	ConfigKey = "config"
-	// InventoryKey ...
+	ConfigKey    = "config"
 	InventoryKey = "inventory"
-
-	// OuputFormatKey ...
 	OuputFormatKey = "format"
 )
 
@@ -58,6 +46,7 @@ var (
 				flFormat,
 			},
 		},
+		updateCommand,
 		{
 			Name:    "run",
 			Aliases: []string{"r"},
@@ -97,7 +86,6 @@ var (
 				cli.StringFlag{Name: TagKey, Usage: "Git tag name."},
 
 				cli.StringFlag{Name: OuputFormatKey, Usage: "Output format. Accepted: json, yml."},
-				cli.BoolFlag{Name: IncludeWorkflowMetaKey, Usage: "Include workflow's meta."},
 
 				// cli params used in CI mode
 				cli.StringFlag{Name: JSONParamsKey, Usage: "Specify command flags with json string-string hash."},
