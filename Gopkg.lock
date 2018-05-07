@@ -31,13 +31,13 @@
   branch = "master"
   name = "github.com/bitrise-io/bitrise"
   packages = ["models"]
-  revision = "2b70a67db24a0bb3bf9edb8bec75d5858309e5f2"
+  revision = "210625fb0cd35096a6a325ed0fbb6128b782c78d"
 
 [[projects]]
-  branch = "master"
   name = "github.com/bitrise-io/envman"
   packages = ["models"]
-  revision = "8437ec034b73d40a6bba2020af3eedf89e25550a"
+  revision = "e607e3cb53ff51fe591f33739a36ea05356bf06c"
+  version = "1.1.13"
 
 [[projects]]
   branch = "master"
@@ -64,10 +64,10 @@
   revision = "f451b19ba4d087d8272d411ad91af5f4218fd517"
 
 [[projects]]
-  branch = "master"
   name = "github.com/bitrise-io/stepman"
   packages = ["models"]
-  revision = "bf618fc92acaf08d8e1347666b4014f6b8fbcd7e"
+  revision = "70596c8a17d5e8d429b1abd68222aae9733337d0"
+  version = "0.9.41"
 
 [[projects]]
   branch = "master"
@@ -121,7 +121,7 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "b49d69b5da943f7ef3c9cf91c8777c1f78a0cc3c"
+  revision = "4ec37c66abab2c7e02ae775328b2ff001c3f025a"
 
 [[projects]]
   branch = "master"
@@ -130,7 +130,7 @@
     "unix",
     "windows"
   ]
-  revision = "bb9c189858d91f42db229b04d45a4c3d23a7662a"
+  revision = "7db1c3b1a98089d0071c84f646ff5c96aad43682"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
@@ -142,7 +142,7 @@
   branch = "master"
   name = "howett.net/plist"
   packages = ["."]
-  revision = "84d08b7bddb35583bb3153b811c6cc52bb306f52"
+  revision = "3bf914ef8f3a8bec3df2721a531d3a693c0a3db9"
 
 [solve-meta]
   analyzer-name = "dep"
