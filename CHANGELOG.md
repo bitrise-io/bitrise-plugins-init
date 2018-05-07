@@ -1,6 +1,12 @@
-## Changelog (Current version: 1.0.1)
+## Changelog (Current version: 1.0.2)
 
 -----------------
+
+### 1.0.2 (2018 May 07)
+
+* [dd5cb4b] prepare for 1.0.2
+* [67ee0b4] dep update (#18)
+* [62e5d49] go-utils update (#17)
 
 ### 1.0.1 (2017 Dec 22)
 
@@ -69,4 +75,4 @@
 
 -----------------
 
-Updated: 2017 Dec 22
+Updated: 2018 May 07
