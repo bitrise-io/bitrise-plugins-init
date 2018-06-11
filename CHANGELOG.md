@@ -1,6 +1,11 @@
-## Changelog (Current version: 1.0.3)
+## Changelog (Current version: 1.0.4)
 
 -----------------
+
+### 1.0.4 (2018 Jun 11)
+
+* [0973ed3] prepare for 1.0.4
+* [d1e5f3f] dep update (#20)
 
 ### 1.0.3 (2018 May 23)
 
@@ -80,4 +85,4 @@
 
 -----------------
 
-Updated: 2018 May 23
+Updated: 2018 Jun 11
