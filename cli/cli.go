@@ -38,7 +38,7 @@ func Run() {
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
 			Name:  "minimal",
-			Usage: "created empty bitrise config and secrets",
+			Usage: "create empty bitrise config and secrets",
 		},
 	}
 

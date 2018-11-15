@@ -23,7 +23,7 @@ COMMANDS:
      help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --minimal      created empty bitrise config and secrets
+   --minimal      create empty bitrise config and secrets
    --help, -h     show help
    --version, -v  print the version`, version.VERSION)
 
