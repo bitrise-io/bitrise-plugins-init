@@ -11,7 +11,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e5f8ae260ac3c660f669cf617ebe5957286190d127e5dd36ec716c846d070879"
+  digest = "1:856c710387c53ba6bd9c35a443a46ef108c76392c67b9cea37ca044b33272436"
   name = "github.com/bitrise-core/bitrise-init"
   packages = [
     "models",
@@ -30,15 +30,15 @@
     "utility",
   ]
   pruneopts = ""
-  revision = "78e8efeaa3952f7705eafa17e0287a7e6a71f111"
+  revision = "5cfb70a7c3909535a0c1fb83f531ed11b3f52981"
 
 [[projects]]
   branch = "master"
-  digest = "1:106e1ce6ca3d3cc75750bf09360728cf9bb87b4fad9a7ed4d7a466c6c8d52f1f"
+  digest = "1:3793ba5d545ed0125b2da27b8b58731087bed7b3d4cb94b1ab03cd2df80822ba"
   name = "github.com/bitrise-io/bitrise"
   packages = ["models"]
   pruneopts = ""
-  revision = "635f41a7152b426071c104f3f1bcddcb7667a923"
+  revision = "8a4a373967dd8c7f9b9b0fdf11566c45eb5b77fb"
 
 [[projects]]
   branch = "master"
