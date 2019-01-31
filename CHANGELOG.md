@@ -1,6 +1,12 @@
-## Changelog (Current version: 1.0.4)
+## Changelog (Current version: 1.0.9)
 
 -----------------
+
+### 1.0.9 (2019 Jan 31)
+
+* [f2632a8] Fixing renamed fields in scanResult
+* [dfcfb6d] Dependencies updated.
+* [8216e91] Bumping plugin version.
 
 ### 1.0.4 (2018 Jun 11)
 
@@ -85,4 +91,4 @@
 
 -----------------
 
-Updated: 2018 Jun 11
+Updated: 2019 Jan 31
