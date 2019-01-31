@@ -41,7 +41,7 @@ func action(c *cli.Context) error {
 			return fmt.Errorf("failed to create empty config, error: %s", err)
 		}
 
-		customConfigs, ok := scanResult.PlatformConfigMapMap[scanners.CustomProjectType]
+		customConfigs, ok := scanResult.ScannerToBitriseConfigMap[scanners.CustomProjectType]
 		if !ok {
 			return fmt.Errorf("no CustomProjectType found found, error: %s", err)
 		}
@@ -66,7 +66,7 @@ func action(c *cli.Context) error {
 
 		scanResult := scanner.Config(currentDir)
 
-		if len(scanResult.PlatformOptionMap) == 0 {
+		if len(scanResult.ScannerToOptionRoot) == 0 {
 			return fmt.Errorf("no known platform type detected")
 		}
 
