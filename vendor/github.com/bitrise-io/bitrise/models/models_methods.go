@@ -354,7 +354,7 @@ func checkDuplicatedTriggerMapItems(triggerMap TriggerMapModel) error {
 		if triggerItem.Pattern == "" {
 			triggerType, err := triggerEventType(triggerItem.PushBranch, triggerItem.PullRequestSourceBranch, triggerItem.PullRequestTargetBranch, triggerItem.Tag)
 			if err != nil {
-				return fmt.Errorf("trigger map item (%v) validate failed, error: %s", triggerItem, err)
+				return fmt.Errorf("trigger map item (%s) validate failed, error: %s", triggerItem, err)
 			}
 
 			triggerItems := triggeTypeItemMap[string(triggerType)]
@@ -405,7 +405,6 @@ func (config *BitriseDataModel) Validate() ([]string, error) {
 		return warnings, fmt.Errorf("missing format_version")
 	}
 
-	// trigger map
 	if err := config.TriggerMap.Validate(); err != nil {
 		return warnings, err
 	}
@@ -431,18 +430,14 @@ func (config *BitriseDataModel) Validate() ([]string, error) {
 	if err := checkDuplicatedTriggerMapItems(config.TriggerMap); err != nil {
 		return warnings, err
 	}
-	// ---
 
-	// app
 	if err := config.App.Validate(); err != nil {
 		return warnings, err
 	}
-	// ---
 
-	// workflows
 	for ID, workflow := range config.Workflows {
 		if ID == "" {
-			return warnings, fmt.Errorf("invalid workflow ID (%s): empty", ID)
+			warnings = append(warnings, fmt.Sprintf("invalid workflow ID (%s): empty", ID))
 		}
 
 		r := regexp.MustCompile(`[A-Za-z0-9-_.]+`)
@@ -460,7 +455,6 @@ func (config *BitriseDataModel) Validate() ([]string, error) {
 			return warnings, err
 		}
 	}
-	// ---
 
 	return warnings, nil
 }
@@ -525,28 +519,6 @@ func removeEnvironmentRedundantFields(env *envmanModels.EnvironmentItemModel) er
 
 	hasOptions := false
 
-	if options.IsSensitive != nil {
-		if *options.IsSensitive == envmanModels.DefaultIsSensitive {
-			options.IsSensitive = nil
-		} else {
-			hasOptions = true
-		}
-	}
-
-	if options.IsExpand != nil {
-		if *options.IsExpand == envmanModels.DefaultIsExpand {
-			options.IsExpand = nil
-		} else {
-			hasOptions = true
-		}
-	}
-	if options.SkipIfEmpty != nil {
-		if *options.SkipIfEmpty == envmanModels.DefaultSkipIfEmpty {
-			options.SkipIfEmpty = nil
-		} else {
-			hasOptions = true
-		}
-	}
 	if options.Title != nil {
 		if *options.Title == "" {
 			options.Title = nil
@@ -568,19 +540,16 @@ func removeEnvironmentRedundantFields(env *envmanModels.EnvironmentItemModel) er
 			hasOptions = true
 		}
 	}
-	if options.Category != nil {
-		if *options.Category == "" {
-			options.Category = nil
+	if options.IsRequired != nil {
+		if *options.IsRequired == envmanModels.DefaultIsRequired {
+			options.IsRequired = nil
 		} else {
 			hasOptions = true
 		}
 	}
-	if options.ValueOptions != nil && len(options.ValueOptions) > 0 {
-		hasOptions = true
-	}
-	if options.IsRequired != nil {
-		if *options.IsRequired == envmanModels.DefaultIsRequired {
-			options.IsRequired = nil
+	if options.IsExpand != nil {
+		if *options.IsExpand == envmanModels.DefaultIsExpand {
+			options.IsExpand = nil
 		} else {
 			hasOptions = true
 		}
@@ -598,9 +567,6 @@ func removeEnvironmentRedundantFields(env *envmanModels.EnvironmentItemModel) er
 		} else {
 			hasOptions = true
 		}
-	}
-	if options.Meta != nil && len(options.Meta) > 0 {
-		hasOptions = true
 	}
 
 	if hasOptions {
@@ -681,9 +647,6 @@ func MergeEnvironmentWith(env *envmanModels.EnvironmentItemModel, otherEnv envma
 		return err
 	}
 
-	if otherOptions.IsSensitive != nil {
-		options.IsSensitive = pointers.NewBoolPtr(*otherOptions.IsSensitive)
-	}
 	if otherOptions.IsExpand != nil {
 		options.IsExpand = pointers.NewBoolPtr(*otherOptions.IsExpand)
 	}
@@ -929,10 +892,6 @@ func CreateStepIDDataFromString(compositeVersionStr, defaultStepLibSource string
 
 	if stepIDOrURI == "" {
 		return StepIDData{}, errors.New("No ID found at all (" + compositeVersionStr + ")")
-	}
-
-	if stepSrc == "git" && stepVersion == "" {
-		stepVersion = "master"
 	}
 
 	return StepIDData{
