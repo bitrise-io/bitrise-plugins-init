@@ -1,6 +1,13 @@
-## Changelog (Current version: 1.0.9)
+## Changelog (Current version: 1.1.0)
 
 -----------------
+
+### 1.1.0 (2019 Mar 12)
+
+* [0cdaee3] dep ensure update
+* [6401002] bump version in version.go
+* [c37117f] bump version in plugin yml
+* [c6e3d79] bump version in bitrise yml env
 
 ### 1.0.9 (2019 Jan 31)
 
