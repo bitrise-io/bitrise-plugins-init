@@ -3,11 +3,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:78e80602d71837c404478f9fc6ff0a10e354b990261a5c8f05eccc6ed347614d"
+  digest = "1:e4c72127d910a96daf869a44f3dd563b86dbe6931a172863a0e99c5ff04b59e4"
   name = "github.com/Sirupsen/logrus"
   packages = ["."]
   pruneopts = "UT"
-  revision = "d7b6bf5e4d26448fd977d07d745a2a66097ddecb"
+  revision = "dae0fa8d5b0c810a8ab733fbd5510c7cae84eca4"
 
 [[projects]]
   branch = "master"
@@ -36,19 +36,19 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5b3fc7bd36888debbfd67478cc09b0e4874b547cc5c53bbd25a6d35447de06ba"
+  digest = "1:59664077e5eba703425d438e1c9d6f4aeaaf485814cedcae5d9c05cd093f0664"
   name = "github.com/bitrise-io/bitrise"
   packages = ["models"]
   pruneopts = "UT"
-  revision = "7477fcfd646c9f961575e38c2de6bf0da94276aa"
+  revision = "43453e390ecdc3f8a571437e45b072febe3eb567"
 
 [[projects]]
   branch = "master"
-  digest = "1:0bdbc9f9b2bbc084d3bb353d8e94d53ee0495f9d434baaddb5e0f07fb88c966a"
+  digest = "1:4e1c0cc22c53c5ebda9bd380afd5b56a2f1fc9e6fd2eed59ab8ba0c1522eee19"
   name = "github.com/bitrise-io/envman"
   packages = ["models"]
   pruneopts = "UT"
-  revision = "41ea1b6f422eabd86189caf7da0c633208ba4760"
+  revision = "12f91a1a8324162e408416161b6919306402d979"
 
 [[projects]]
   branch = "master"
@@ -95,11 +95,11 @@
     "xcodeproj",
   ]
   pruneopts = "UT"
-  revision = "8e44ecb550c0cadef602edda92e5c10476dd5daa"
+  revision = "b3f7172f910693d60973a07b61db757aca81f778"
 
 [[projects]]
   branch = "master"
-  digest = "1:f5d050443803354466260c17b1cc500558364967419d09b3b77e0c79c64c9d34"
+  digest = "1:894c5630e62d037ffcffa0bea305804013950e6f83eef24a7abde02f06be0b77"
   name = "github.com/bitrise-tools/xcode-project"
   packages = [
     "serialized",
@@ -109,7 +109,7 @@
     "xcworkspace",
   ]
   pruneopts = "UT"
-  revision = "476ea7a82b2ef7c77d0d41445afc94bdb1cda04d"
+  revision = "51bf5b2b7fd5ea39d460178fb217110ccfbb923a"
 
 [[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
@@ -120,12 +120,12 @@
   version = "v1.1.1"
 
 [[projects]]
-  digest = "1:0a69a1c0db3591fcefb47f115b224592c8dfa4368b7ba9fae509d5e16cdc95c8"
+  digest = "1:31e761d97c76151dde79e9d28964a812c46efc5baee4085b86f68f0c654450de"
   name = "github.com/konsorten/go-windows-terminal-sequences"
   packages = ["."]
   pruneopts = "UT"
-  revision = "5c8c8bd35d3832f5d134ae1e1e375b69a4d25242"
-  version = "v1.0.1"
+  revision = "f55edac94c9bbba5d6182a4be46d86a2c9b5b50e"
+  version = "v1.0.2"
 
 [[projects]]
   digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
@@ -153,14 +153,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:68171d9755228ac0c35c40989e1a7945fb1b63495dbbcb4bb80795e6ea3beb15"
+  digest = "1:45511ffd176fe0c5ab6cb08cdd141f3217df8e115124b176e894ab103925d53c"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
     "require",
   ]
   pruneopts = "UT"
-  revision = "21cb1c2932a2d04c6792d5ad106243c6e36a3a7d"
+  revision = "34c6fa2dc70986bccbbffcc6130f6920a924b075"
 
 [[projects]]
   branch = "master"
@@ -172,22 +172,37 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:fde12c4da6237363bf36b81b59aa36a43d28061167ec4acb0d41fc49464e28b9"
+  digest = "1:058e9504b9a79bfe86092974d05bb3298d2aa0c312d266d43148de289a5065d9"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
   pruneopts = "UT"
-  revision = "b01c7a72566457eb1420261cdafef86638fc3861"
+  revision = "c2843e01d9a2bc60bb26ad24e09734fdc2d9ec58"
 
 [[projects]]
   branch = "master"
-  digest = "1:7941e2f16c0833b438cbef7fccfe4f8346f9f7876b42b29717a75d7e8c4800cb"
+  digest = "1:944736317d4f2fb1c1015ef9ca05fd9313b4e19f1128901cc678f636435fa9b0"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "aca44879d5644da7c5b8ec6a1115e9b6ea6c40d9"
+  revision = "fead79001313d15903fb4605b4a1b781532cd93e"
+
+[[projects]]
+  digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"
+  name = "golang.org/x/text"
+  packages = [
+    "internal/gen",
+    "internal/triegen",
+    "internal/ucd",
+    "transform",
+    "unicode/cldr",
+    "unicode/norm",
+  ]
+  pruneopts = "UT"
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
 
 [[projects]]
   branch = "v2"
