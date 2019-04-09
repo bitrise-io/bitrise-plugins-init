@@ -7,8 +7,8 @@ import (
 	"gopkg.in/yaml.v2"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/bitrise-core/bitrise-init/scanner"
-	"github.com/bitrise-core/bitrise-init/scanners"
+	"github.com/bitrise-io/bitrise-init/scanner"
+	"github.com/bitrise-io/bitrise-init/scanners"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/fileutil"

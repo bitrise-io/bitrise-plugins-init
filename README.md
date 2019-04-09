@@ -17,7 +17,7 @@ Can be run directly with the Bitrise CLI, requires version 1.3.0 or newer.
 First install the plugin:
 
 ```
-bitrise plugin install --source https://github.com/bitrise-core/bitrise-plugins-init.git
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-plugins-init.git
 ```
 
 After that, you can use it:
@@ -25,13 +25,3 @@ After that, you can use it:
 ```
 bitrise :init
 ```
-
-## How to release this plugin
-
-- bump `RELEASE_VERSION` in bitrise.yml
-- comit these change
-- call `bitrise run create-release`
-- check and update the generated CHANGELOG.md
-- test the generated binaries in _bin/ directory
-- push these changes to the master branch
-- once `deploy` workflow finishes on bitrise.io create a github release with the generate binaries

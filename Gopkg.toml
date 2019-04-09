@@ -3,7 +3,7 @@
   branch = "master"
 
 [[constraint]]
-  name = "github.com/bitrise-core/bitrise-init"
+  name = "github.com/bitrise-io/bitrise-init"
   branch = "master"
 
 [[constraint]]
