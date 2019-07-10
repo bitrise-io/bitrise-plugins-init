@@ -122,7 +122,7 @@ func (Scanner) ExcludedScannerNames() []string {
 }
 
 // Options ...
-func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
+func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
 	log.TInfof("Searching for NuGet packages & Xamarin Components")
 
 	warnings := models.Warnings{}
@@ -191,42 +191,42 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
 
 	if len(validSolutionMap) == 0 {
 		log.TErrorf("No valid solution file found")
-		return models.OptionNode{}, warnings, errors.New("No valid solution file found")
+		return models.OptionNode{}, warnings, nil, errors.New("No valid solution file found")
 	}
 
 	// Check for solution projects
-	xamarinSolutionOption := models.NewOption(xamarinSolutionInputTitle, xamarinSolutionInputEnvKey)
+	xamarinSolutionOption := models.NewOption(xamarinSolutionInputTitle, xamarinSolutionInputEnvKey, models.TypeSelector)
 
 	for solutionFile, configMap := range validSolutionMap {
-		xamarinConfigurationOption := models.NewOption(xamarinConfigurationInputTitle, xamarinConfigurationInputEnvKey)
+		xamarinConfigurationOption := models.NewOption(xamarinConfigurationInputTitle, xamarinConfigurationInputEnvKey, models.TypeSelector)
 		xamarinSolutionOption.AddOption(solutionFile, xamarinConfigurationOption)
 
 		for config, platforms := range configMap {
-			xamarinPlatformOption := models.NewOption(xamarinPlatformInputTitle, xamarinPlatformInputEnvKey)
+			xamarinPlatformOption := models.NewOption(xamarinPlatformInputTitle, xamarinPlatformInputEnvKey, models.TypeSelector)
 			xamarinConfigurationOption.AddOption(config, xamarinPlatformOption)
 
 			for _, platform := range platforms {
-				configOption := models.NewConfigOption(configName(scanner.HasNugetPackages, scanner.HasXamarinComponents))
+				configOption := models.NewConfigOption(configName(scanner.HasNugetPackages, scanner.HasXamarinComponents), nil)
 				xamarinPlatformOption.AddConfig(platform, configOption)
 			}
 		}
 	}
 
-	return *xamarinSolutionOption, warnings, nil
+	return *xamarinSolutionOption, warnings, nil, nil
 }
 
 // DefaultOptions ...
 func (Scanner) DefaultOptions() models.OptionNode {
-	xamarinSolutionOption := models.NewOption(xamarinSolutionInputTitle, xamarinSolutionInputEnvKey)
+	xamarinSolutionOption := models.NewOption(xamarinSolutionInputTitle, xamarinSolutionInputEnvKey, models.TypeUserInput)
 
-	xamarinConfigurationOption := models.NewOption(xamarinConfigurationInputTitle, xamarinConfigurationInputEnvKey)
-	xamarinSolutionOption.AddOption("_", xamarinConfigurationOption)
+	xamarinConfigurationOption := models.NewOption(xamarinConfigurationInputTitle, xamarinConfigurationInputEnvKey, models.TypeUserInput)
+	xamarinSolutionOption.AddOption("", xamarinConfigurationOption)
 
-	xamarinPlatformOption := models.NewOption(xamarinPlatformInputTitle, xamarinPlatformInputEnvKey)
-	xamarinConfigurationOption.AddOption("_", xamarinPlatformOption)
+	xamarinPlatformOption := models.NewOption(xamarinPlatformInputTitle, xamarinPlatformInputEnvKey, models.TypeUserInput)
+	xamarinConfigurationOption.AddOption("", xamarinPlatformOption)
 
-	configOption := models.NewConfigOption(defaultConfigName)
-	xamarinPlatformOption.AddConfig("_", configOption)
+	configOption := models.NewConfigOption(defaultConfigName, nil)
+	xamarinPlatformOption.AddConfig("", configOption)
 
 	return *xamarinSolutionOption
 }

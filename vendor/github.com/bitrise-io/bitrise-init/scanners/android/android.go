@@ -11,9 +11,10 @@ import (
 
 // Scanner ...
 type Scanner struct {
-	SearchDir    string
-	ProjectRoots []string
-	ExcludeTest  bool
+	SearchDir      string
+	ProjectRoots   []string
+	ExcludeTest    bool
+	ExcludeAppIcon bool
 }
 
 // NewScanner ...
@@ -51,41 +52,52 @@ func (scanner *Scanner) DetectPlatform(searchDir string) (_ bool, err error) {
 }
 
 // Options ...
-func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
-	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
+func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
+	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey, models.TypeSelector)
 	warnings := models.Warnings{}
+	appIconsAllProjects := models.Icons{}
 
 	for _, projectRoot := range scanner.ProjectRoots {
 		if err := checkGradlew(projectRoot); err != nil {
-			return models.OptionNode{}, warnings, err
+			return models.OptionNode{}, warnings, nil, err
 		}
 
 		relProjectRoot, err := filepath.Rel(scanner.SearchDir, projectRoot)
 		if err != nil {
-			return models.OptionNode{}, warnings, err
+			return models.OptionNode{}, warnings, nil, err
 		}
 
-		configOption := models.NewConfigOption(ConfigName)
-		moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
-		variantOption := models.NewOption(VariantInputTitle, VariantInputEnvKey)
+		icons, err := LookupIcons(projectRoot, scanner.SearchDir)
+		if err != nil {
+			return models.OptionNode{}, warnings, nil, err
+		}
+		appIconsAllProjects = append(appIconsAllProjects, icons...)
+		iconIDs := make([]string, len(icons))
+		for i, icon := range icons {
+			iconIDs[i] = icon.Filename
+		}
+
+		configOption := models.NewConfigOption(ConfigName, iconIDs)
+		moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey, models.TypeUserInput)
+		variantOption := models.NewOption(VariantInputTitle, VariantInputEnvKey, models.TypeOptionalUserInput)
 
 		projectLocationOption.AddOption(relProjectRoot, moduleOption)
 		moduleOption.AddOption("app", variantOption)
 		variantOption.AddConfig("", configOption)
 	}
 
-	return *projectLocationOption, warnings, nil
+	return *projectLocationOption, warnings, appIconsAllProjects, nil
 }
 
 // DefaultOptions ...
 func (scanner *Scanner) DefaultOptions() models.OptionNode {
-	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey)
-	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey)
-	variantOption := models.NewOption(VariantInputTitle, VariantInputEnvKey)
-	configOption := models.NewConfigOption(DefaultConfigName)
+	projectLocationOption := models.NewOption(ProjectLocationInputTitle, ProjectLocationInputEnvKey, models.TypeUserInput)
+	moduleOption := models.NewOption(ModuleInputTitle, ModuleInputEnvKey, models.TypeUserInput)
+	variantOption := models.NewOption(VariantInputTitle, VariantInputEnvKey, models.TypeOptionalUserInput)
+	configOption := models.NewConfigOption(DefaultConfigName, nil)
 
-	projectLocationOption.AddOption("_", moduleOption)
-	moduleOption.AddOption("_", variantOption)
+	projectLocationOption.AddOption("", moduleOption)
+	moduleOption.AddOption("", variantOption)
 	variantOption.AddConfig("", configOption)
 
 	return *projectLocationOption
