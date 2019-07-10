@@ -2,8 +2,8 @@ name: init
 description: Initialize bitrise __config (bitrise.yml)__ and __secrets (.bitrise.secrets.yml)__
   based on your project.
 executable:
-  osx: https://github.com/bitrise-io/bitrise-plugins-init/releases/download/1.2.0/bitrise-plugins-init-Darwin-x86_64
-  linux: https://github.com/bitrise-io/bitrise-plugins-init/releases/download/1.2.0/bitrise-plugins-init-Linux-x86_64
+  osx: https://github.com/bitrise-io/bitrise-plugins-init/releases/download/1.2.1/bitrise-plugins-init-Darwin-x86_64
+  linux: https://github.com/bitrise-io/bitrise-plugins-init/releases/download/1.2.1/bitrise-plugins-init-Linux-x86_64
 trigger: ""
 requirements:
 - tool: bitrise
