@@ -10,7 +10,6 @@ import (
 	"github.com/bitrise-io/bitrise-init/scanners/ios"
 	"github.com/bitrise-io/bitrise-init/scanners/macos"
 	"github.com/bitrise-io/bitrise-init/scanners/reactnative"
-	expo "github.com/bitrise-io/bitrise-init/scanners/reactnative-expo"
 	"github.com/bitrise-io/bitrise-init/scanners/xamarin"
 	"github.com/bitrise-io/bitrise-init/steps"
 	"gopkg.in/yaml.v2"
@@ -45,7 +44,7 @@ type ScannerInterface interface {
 	// - OptionNode
 	// - Warnings (if any)
 	// - error if (if any)
-	Options() (models.OptionNode, models.Warnings, error)
+	Options() (models.OptionNode, models.Warnings, models.Icons, error)
 
 	// Returns:
 	// - default options for the platform.
@@ -71,7 +70,6 @@ type AutomationToolScanner interface {
 
 // ProjectScanners ...
 var ProjectScanners = []ScannerInterface{
-	expo.NewScanner(),
 	reactnative.NewScanner(),
 	flutter.NewScanner(),
 	ionic.NewScanner(),

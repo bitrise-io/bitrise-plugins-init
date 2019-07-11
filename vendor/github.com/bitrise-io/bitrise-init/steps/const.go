@@ -18,14 +18,14 @@ const (
 	// AndroidUnitTestID ...
 	AndroidUnitTestID = "android-unit-test"
 	// AndroidUnitTestVersion ...
-	AndroidUnitTestVersion = "0.9.6"
+	AndroidUnitTestVersion = "0.11.1"
 )
 
 const (
 	// AndroidBuildID ...
 	AndroidBuildID = "android-build"
 	// AndroidBuildVersion ...
-	AndroidBuildVersion = "0.9.6"
+	AndroidBuildVersion = "0.10.0"
 )
 
 const (
@@ -46,7 +46,7 @@ const (
 	// CachePushID ...
 	CachePushID = "cache-push"
 	// CachePushVersion ...
-	CachePushVersion = "2.1.1"
+	CachePushVersion = "2.2.0"
 )
 
 const (
@@ -67,7 +67,7 @@ const (
 	// DeployToBitriseIoID ...
 	DeployToBitriseIoID = "deploy-to-bitrise-io"
 	// DeployToBitriseIoVersion ...
-	DeployToBitriseIoVersion = "1.3.19"
+	DeployToBitriseIoVersion = "1.6.0"
 )
 
 const (
@@ -83,7 +83,7 @@ const (
 	// SignAPKID ...
 	SignAPKID = "sign-apk"
 	// SignAPKVersion ...
-	SignAPKVersion = "1.2.4"
+	SignAPKVersion = "1.3.1"
 )
 
 const (
@@ -111,7 +111,7 @@ const (
 	// CarthageID ...
 	CarthageID = "carthage"
 	// CarthageVersion ...
-	CarthageVersion = "3.2.0"
+	CarthageVersion = "3.2.1"
 )
 
 const (
@@ -125,14 +125,14 @@ const (
 	// XcodeArchiveID ...
 	XcodeArchiveID = "xcode-archive"
 	// XcodeArchiveVersion ...
-	XcodeArchiveVersion = "2.4.21"
+	XcodeArchiveVersion = "2.5.0"
 )
 
 const (
 	// XcodeTestID ...
 	XcodeTestID = "xcode-test"
 	// XcodeTestVersion ...
-	XcodeTestVersion = "2.3.0"
+	XcodeTestVersion = "2.3.2"
 )
 
 const (
@@ -167,14 +167,14 @@ const (
 	// XcodeArchiveMacID ...
 	XcodeArchiveMacID = "xcode-archive-mac"
 	// XcodeArchiveMacVersion ...
-	XcodeArchiveMacVersion = "1.6.2"
+	XcodeArchiveMacVersion = "1.7.0"
 )
 
 const (
 	// XcodeTestMacID ...
 	XcodeTestMacID = "xcode-test-mac"
 	// XcodeTestMacVersion ...
-	XcodeTestMacVersion = "1.3.0"
+	XcodeTestMacVersion = "1.4.0"
 )
 
 const (
@@ -237,7 +237,7 @@ const (
 	// FlutterInstallID ...
 	FlutterInstallID = "flutter-installer"
 	// FlutterInstallVersion ...
-	FlutterInstallVersion = "0.9.2"
+	FlutterInstallVersion = "0.11.0"
 )
 
 const (

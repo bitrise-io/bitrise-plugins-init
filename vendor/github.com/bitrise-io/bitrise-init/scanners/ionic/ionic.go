@@ -139,14 +139,14 @@ func (Scanner) ExcludedScannerNames() []string {
 }
 
 // Options ...
-func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
+func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, models.Icons, error) {
 	warnings := models.Warnings{}
 	projectRootDir := filepath.Dir(scanner.cordovaConfigPth)
 
 	packagesJSONPth := filepath.Join(projectRootDir, "package.json")
 	packages, err := utility.ParsePackagesJSON(packagesJSONPth)
 	if err != nil {
-		return models.OptionNode{}, warnings, err
+		return models.OptionNode{}, warnings, nil, err
 	}
 
 	// Search for karma/jasmine tests
@@ -172,7 +172,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
 	if karmaJasmineDependencyFound {
 		karmaConfigJSONPth := filepath.Join(projectRootDir, "karma.conf.js")
 		if exist, err := pathutil.IsPathExists(karmaConfigJSONPth); err != nil {
-			return models.OptionNode{}, warnings, err
+			return models.OptionNode{}, warnings, nil, err
 		} else if exist {
 			karmaTestDetected = true
 		}
@@ -208,7 +208,7 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
 		if jasmineDependencyFound {
 			jasmineConfigJSONPth := filepath.Join(projectRootDir, "spec", "support", "jasmine.json")
 			if exist, err := pathutil.IsPathExists(jasmineConfigJSONPth); err != nil {
-				return models.OptionNode{}, warnings, err
+				return models.OptionNode{}, warnings, nil, err
 			} else if exist {
 				jasminTestDetected = true
 			}
@@ -224,7 +224,10 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
 	cordovaConfigDir := filepath.Dir(scanner.cordovaConfigPth)
 	relCordovaConfigDir, err := utility.RelPath(scanner.searchDir, cordovaConfigDir)
 	if err != nil {
-		return models.OptionNode{}, warnings, fmt.Errorf("Failed to get relative config.xml dir path, error: %s", err)
+		return models.OptionNode{},
+			warnings,
+			nil,
+			fmt.Errorf("Failed to get relative config.xml dir path, error: %s", err)
 	}
 	if relCordovaConfigDir == "." {
 		// config.xml placed in the search dir, no need to change-dir in the workflows
@@ -239,34 +242,34 @@ func (scanner *Scanner) Options() (models.OptionNode, models.Warnings, error) {
 	platforms := []string{"ios", "android", "ios,android"}
 
 	if relCordovaConfigDir != "" {
-		rootOption = models.NewOption(workDirInputTitle, workDirInputEnvKey)
+		rootOption = models.NewOption(workDirInputTitle, workDirInputEnvKey, models.TypeSelector)
 
-		projectTypeOption := models.NewOption(platformInputTitle, platformInputEnvKey)
+		projectTypeOption := models.NewOption(platformInputTitle, platformInputEnvKey, models.TypeSelector)
 		rootOption.AddOption(relCordovaConfigDir, projectTypeOption)
 
 		for _, platform := range platforms {
-			configOption := models.NewConfigOption(configName)
+			configOption := models.NewConfigOption(configName, nil)
 			projectTypeOption.AddConfig(platform, configOption)
 		}
 	} else {
-		rootOption = models.NewOption(platformInputTitle, platformInputEnvKey)
+		rootOption = models.NewOption(platformInputTitle, platformInputEnvKey, models.TypeSelector)
 
 		for _, platform := range platforms {
-			configOption := models.NewConfigOption(configName)
+			configOption := models.NewConfigOption(configName, nil)
 			rootOption.AddConfig(platform, configOption)
 		}
 	}
 	// ---
 
-	return *rootOption, warnings, nil
+	return *rootOption, warnings, nil, nil
 }
 
 // DefaultOptions ...
 func (Scanner) DefaultOptions() models.OptionNode {
-	workDirOption := models.NewOption(workDirInputTitle, workDirInputEnvKey)
+	workDirOption := models.NewOption(workDirInputTitle, workDirInputEnvKey, models.TypeUserInput)
 
-	projectTypeOption := models.NewOption(platformInputTitle, platformInputEnvKey)
-	workDirOption.AddOption("_", projectTypeOption)
+	projectTypeOption := models.NewOption(platformInputTitle, platformInputEnvKey, models.TypeSelector)
+	workDirOption.AddOption("", projectTypeOption)
 
 	platforms := []string{
 		"ios",
@@ -274,7 +277,7 @@ func (Scanner) DefaultOptions() models.OptionNode {
 		"ios,android",
 	}
 	for _, platform := range platforms {
-		configOption := models.NewConfigOption(defaultConfigName)
+		configOption := models.NewConfigOption(defaultConfigName, nil)
 		projectTypeOption.AddConfig(platform, configOption)
 	}
 
