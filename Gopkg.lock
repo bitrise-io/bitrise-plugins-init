@@ -27,7 +27,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:86c1053d23e386e46eee4d2832e92d7fb5d572e95d586f370b4877a8218067c7"
+  digest = "1:0fd77d4d8e095975b17f728f305490e3b991cd81017b28df311a50de023a4061"
   name = "github.com/bitrise-io/bitrise-init"
   packages = [
     "models",
@@ -48,7 +48,7 @@
     "utility",
   ]
   pruneopts = "UT"
-  revision = "faabc388b66fef247d543d7a895dbc505ce4ddf8"
+  revision = "48e2d53d769f75f092afcb8572648a0e64c6b0bc"
 
 [[projects]]
   branch = "master"
@@ -56,7 +56,7 @@
   name = "github.com/bitrise-io/envman"
   packages = ["models"]
   pruneopts = "UT"
-  revision = "27a300a1ed43c2c4e5f87011e1743a6dcc770c44"
+  revision = "7698fc58b190e022c2a8ca667b539ce48c3ed1c9"
 
 [[projects]]
   branch = "master"
@@ -103,7 +103,7 @@
   name = "github.com/bitrise-io/stepman"
   packages = ["models"]
   pruneopts = "UT"
-  revision = "10564a4888a69c1f0de0afc4f4fd749bf54ce294"
+  revision = "8138843b694ce731d58a1754b57ac250a9dec9e6"
 
 [[projects]]
   branch = "master"
@@ -188,14 +188,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:30fb053552c768bb5e5edca6191b2d46526490a5e610e64ed740128ed4564898"
+  digest = "1:019ad1c6ebe331efc7b2770d226015dced1bedc0ec03f9d9d8216e654affe7ba"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "bbd175535a8b9969bb0b33f1502f681ee0b122bd"
+  revision = "b4ddaad3f8a36719f2b8bc6486c14cc468ca2bb5"
 
 [[projects]]
   digest = "1:1093f2eb4b344996604f7d8b29a16c5b22ab9e1b25652140d3fede39f640d5cd"
