@@ -12,7 +12,7 @@ Initialize bitrise __config (bitrise.yml)__ based on your project.
 
 ## How to use this Plugin
 
-Can be run directly with the Bitrise CLI, requires version 1.3.1 or newer.
+Can be run directly with the Bitrise CLI, requires version 1.3.0 or newer.
 
 First install the plugin:
 
