@@ -1,6 +1,8 @@
 package integration
 
 import (
+	"io/ioutil"
+	"strings"
 	"testing"
 
 	"os"
@@ -21,6 +23,23 @@ func Test_InitTest(t *testing.T) {
 		cmd.SetDir(tmpDir)
 		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
 		require.NoError(t, err, out)
+	}
+
+	t.Log(".bitrise.secrets.yml added to .gitignore when command succeeds")
+	{
+		tmpDir, err := pathutil.NormalizedOSTempDirPath("")
+		require.NoError(t, err)
+
+		cmd := command.New(binPath(), "--minimal")
+		cmd.SetDir(tmpDir)
+		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+		require.NoError(t, err, out)
+
+		content, err := ioutil.ReadFile(tmpDir + "/.gitignore")
+		require.NoError(t, err, out)
+
+		require.True(t, strings.Contains(string(content), ".bitrise.secrets.yml"))
+
 	}
 
 	t.Log("init --minimal - bitrise.yml already exists - SHOULD FAIL")

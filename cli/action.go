@@ -104,3 +104,17 @@ func action(c *cli.Context) error {
 
 	return nil
 }
+
+func gitignore(pattern, gitignorePath string) error {
+	f, err := os.OpenFile(gitignorePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("open .gitignore file at %s: %s", gitignorePath, err)
+	}
+
+	_, err = f.WriteString(pattern)
+	if err != nil {
+		return fmt.Errorf("write pattern to .gitignore at %s: %s", gitignorePath, err)
+	}
+
+	return nil
+}
