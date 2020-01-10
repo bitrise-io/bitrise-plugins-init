@@ -128,7 +128,7 @@ func Test_GitignoreTest(t *testing.T) {
 		require.NoError(t, err, out)
 
 		expected := ".bitrise.secrets.yml"
-		require.Equalf(t, expected, string(content), fmt.Sprintf("got `%s` want `%s`: generated .gitignore at %s", content, expected, gitignorePath))
+		require.Equal(t, expected, string(content))
 
 	}
 
@@ -154,7 +154,7 @@ func Test_GitignoreTest(t *testing.T) {
 		require.NoError(t, err, out)
 
 		expected := "node_modules\nlocal.env\n.bitrise.secrets.yml"
-		require.Equalf(t, expected, string(content), fmt.Sprintf("got `%s` want `%s`: generated .gitignore at %s", content, expected, gitignorePath))
+		require.Equal(t, expected, string(content))
 
 	}
 
@@ -180,7 +180,7 @@ func Test_GitignoreTest(t *testing.T) {
 		require.NoError(t, err, out)
 
 		expected := "node_modules\nlocal.env\n.bitrise.secrets.yml"
-		require.Equalf(t, expected, string(content), fmt.Sprintf("got `%s` want `%s`: generated .gitignore at %s", content, expected, gitignorePath))
+		require.Equal(t, expected, string(content))
 
 	}
 }
