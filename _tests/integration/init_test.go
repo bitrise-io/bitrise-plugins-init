@@ -130,4 +130,28 @@ func Test_GitignoreTest(t *testing.T) {
 		require.True(t, strings.Contains(string(content), ".bitrise.secrets.yml"))
 
 	}
+
+	t.Log("append to .gitignore with .bitrise.secrets.yml when .gitignore exists")
+	{
+		tmpDir, err := pathutil.NormalizedOSTempDirPath("")
+		require.NoError(t, err)
+
+		gitignorePath := tmpDir + "/.gitignore"
+		err = ioutil.WriteFile(gitignorePath, []byte("node_modules\nlocal.env"), 0644)
+		require.NoError(t, err)
+		exists, err := pathutil.IsPathExists(gitignorePath)
+		require.NoError(t, err)
+		require.True(t, exists, fmt.Sprintf("prepared test .gitignore file should exist at %s", gitignorePath))
+
+		cmd := command.New(binPath(), "--minimal")
+		cmd.SetDir(tmpDir)
+
+		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+		require.NoError(t, err, out)
+
+		content, err := ioutil.ReadFile(gitignorePath)
+		require.NoError(t, err, out)
+		require.True(t, strings.Contains(string(content), "node_modules\nlocal.env.\nbitrise.secrets.yml"))
+
+	}
 }
