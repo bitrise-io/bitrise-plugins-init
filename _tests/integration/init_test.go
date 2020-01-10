@@ -151,7 +151,9 @@ func Test_GitignoreTest(t *testing.T) {
 
 		content, err := ioutil.ReadFile(gitignorePath)
 		require.NoError(t, err, out)
-		require.True(t, strings.Contains(string(content), "node_modules\nlocal.env\n.bitrise.secrets.yml"))
+
+		expected := "node_modules\nlocal.env\n.bitrise.secrets.yml"
+		require.True(t, strings.Contains(string(content), expected), fmt.Sprintf("got `%s` want `%s`: generated .gitignore at %s", content, expected, gitignorePath))
 
 	}
 }

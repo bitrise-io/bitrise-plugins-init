@@ -111,7 +111,7 @@ func gitignore(pattern, gitignorePath string) error {
 		return fmt.Errorf("open .gitignore file at %s: %s", gitignorePath, err)
 	}
 
-	if _, err := f.WriteString(pattern); err != nil {
+	if _, err := f.WriteString("\n" + pattern); err != nil {
 		return fmt.Errorf("write pattern to .gitignore at %s: %s", gitignorePath, err)
 	}
 
