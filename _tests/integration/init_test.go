@@ -108,7 +108,7 @@ func Test_InitTest(t *testing.T) {
 }
 
 func Test_GitignoreTest(t *testing.T) {
-	t.Log("create .gitignore with .bitrise.secrets.yml when .gitignore does not exist")
+	t.Log("create .gitignore with pattern when .gitignore does not exist")
 	{
 		tmpDir, err := pathutil.NormalizedOSTempDirPath("")
 		require.NoError(t, err)
@@ -132,7 +132,7 @@ func Test_GitignoreTest(t *testing.T) {
 
 	}
 
-	t.Log("append to .gitignore with .bitrise.secrets.yml when .gitignore exists")
+	t.Log("write on last line in .gitignore when file ends with new line")
 	{
 		tmpDir, err := pathutil.NormalizedOSTempDirPath("")
 		require.NoError(t, err)
