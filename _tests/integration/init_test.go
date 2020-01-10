@@ -127,12 +127,38 @@ func Test_GitignoreTest(t *testing.T) {
 		content, err := ioutil.ReadFile(gitignorePath)
 		require.NoError(t, err, out)
 
-		expected := "\n.bitrise.secrets.yml"
+		expected := ".bitrise.secrets.yml"
 		require.Equalf(t, string(content), expected, fmt.Sprintf("got `%s` want `%s`: generated .gitignore at %s", content, expected, gitignorePath))
 
 	}
 
 	t.Log("append to .gitignore with .bitrise.secrets.yml when .gitignore exists")
+	{
+		tmpDir, err := pathutil.NormalizedOSTempDirPath("")
+		require.NoError(t, err)
+
+		gitignorePath := tmpDir + "/.gitignore"
+		err = ioutil.WriteFile(gitignorePath, []byte("node_modules\nlocal.env\n"), 0644)
+		require.NoError(t, err)
+		exists, err := pathutil.IsPathExists(gitignorePath)
+		require.NoError(t, err)
+		require.True(t, exists, fmt.Sprintf("prepared test .gitignore file should exist at %s", gitignorePath))
+
+		cmd := command.New(binPath(), "--minimal")
+		cmd.SetDir(tmpDir)
+
+		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+		require.NoError(t, err, out)
+
+		content, err := ioutil.ReadFile(gitignorePath)
+		require.NoError(t, err, out)
+
+		expected := "node_modules\nlocal.env\n.bitrise.secrets.yml"
+		require.Equalf(t, string(content), expected, fmt.Sprintf("got `%s` want `%s`: generated .gitignore at %s", content, expected, gitignorePath))
+
+	}
+
+	t.Log("append to new line in .gitignore when file does not end with new line")
 	{
 		tmpDir, err := pathutil.NormalizedOSTempDirPath("")
 		require.NoError(t, err)
