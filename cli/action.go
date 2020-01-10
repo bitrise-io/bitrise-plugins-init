@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"regexp"
 
 	"gopkg.in/yaml.v2"
 
@@ -113,6 +114,13 @@ func gitignore(pattern, gitignorePath string) error {
 	}
 
 	contents, err := ioutil.ReadFile(gitignorePath)
+	matched, err := regexp.MatchString(fmt.Sprintf("(^%[1]s\n)|(\n%[1]s\n)", pattern), string(contents))
+	if err != nil {
+		return fmt.Errorf("matching .gitignore file contents at %s against %s: %s", gitignorePath, pattern, err)
+	}
+	if matched {
+		return nil
+	}
 
 	if len(contents) > 0 && contents[len(contents)-1] != '\n' {
 		pattern = "\n" + pattern
