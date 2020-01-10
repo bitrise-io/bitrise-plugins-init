@@ -113,20 +113,20 @@ func Test_GitignoreTest(t *testing.T) {
 	{
 		tmpDir, err := pathutil.NormalizedOSTempDirPath("")
 		require.NoError(t, err)
-		gitignorePath := tmpDir + "/.gitignore"
 
+		gitignorePath := tmpDir + "/.gitignore"
 		exists, err := pathutil.IsPathExists(gitignorePath)
 		require.NoError(t, err)
 		require.False(t, exists, fmt.Sprintf(".gitignore file should not exist at %s", gitignorePath))
 
 		cmd := command.New(binPath(), "--minimal")
 		cmd.SetDir(tmpDir)
+
 		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
 		require.NoError(t, err, out)
 
 		content, err := ioutil.ReadFile(gitignorePath)
 		require.NoError(t, err, out)
-
 		require.True(t, strings.Contains(string(content), ".bitrise.secrets.yml"))
 
 	}
