@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"fmt"
 	"io/ioutil"
 	"strings"
 	"testing"
@@ -29,6 +30,10 @@ func Test_InitTest(t *testing.T) {
 	{
 		tmpDir, err := pathutil.NormalizedOSTempDirPath("")
 		require.NoError(t, err)
+
+		exists, err := pathutil.IsPathExists(tmpDir + "/.gitignore")
+		require.NoError(t, err)
+		require.False(t, exists, fmt.Sprintf(".gitignore file should not exist at %s", tmpDir+"/.gitignore"))
 
 		cmd := command.New(binPath(), "--minimal")
 		cmd.SetDir(tmpDir)
