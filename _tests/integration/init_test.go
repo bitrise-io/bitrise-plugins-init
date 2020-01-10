@@ -26,28 +26,6 @@ func Test_InitTest(t *testing.T) {
 		require.NoError(t, err, out)
 	}
 
-	t.Log(".bitrise.secrets.yml added to .gitignore when command succeeds")
-	{
-		tmpDir, err := pathutil.NormalizedOSTempDirPath("")
-		require.NoError(t, err)
-		gitignorePath := tmpDir + "/.gitignore"
-
-		exists, err := pathutil.IsPathExists(gitignorePath)
-		require.NoError(t, err)
-		require.False(t, exists, fmt.Sprintf(".gitignore file should not exist at %s", gitignorePath))
-
-		cmd := command.New(binPath(), "--minimal")
-		cmd.SetDir(tmpDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-
-		content, err := ioutil.ReadFile(gitignorePath)
-		require.NoError(t, err, out)
-
-		require.True(t, strings.Contains(string(content), ".bitrise.secrets.yml"))
-
-	}
-
 	t.Log("init --minimal - bitrise.yml already exists - SHOULD FAIL")
 	{
 		tmpDir, err := pathutil.NormalizedOSTempDirPath("")
@@ -127,5 +105,29 @@ func Test_InitTest(t *testing.T) {
 		cmd.SetDir(tmpDir)
 		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
 		require.EqualError(t, err, "exit status 1", out)
+	}
+}
+
+func Test_GitignoreTest(t *testing.T) {
+	t.Log(".bitrise.secrets.yml added to .gitignore when command succeeds")
+	{
+		tmpDir, err := pathutil.NormalizedOSTempDirPath("")
+		require.NoError(t, err)
+		gitignorePath := tmpDir + "/.gitignore"
+
+		exists, err := pathutil.IsPathExists(gitignorePath)
+		require.NoError(t, err)
+		require.False(t, exists, fmt.Sprintf(".gitignore file should not exist at %s", gitignorePath))
+
+		cmd := command.New(binPath(), "--minimal")
+		cmd.SetDir(tmpDir)
+		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+		require.NoError(t, err, out)
+
+		content, err := ioutil.ReadFile(gitignorePath)
+		require.NoError(t, err, out)
+
+		require.True(t, strings.Contains(string(content), ".bitrise.secrets.yml"))
+
 	}
 }
