@@ -3,7 +3,6 @@ package integration
 import (
 	"fmt"
 	"io/ioutil"
-	"strings"
 	"testing"
 
 	"os"
@@ -127,7 +126,9 @@ func Test_GitignoreTest(t *testing.T) {
 
 		content, err := ioutil.ReadFile(gitignorePath)
 		require.NoError(t, err, out)
-		require.True(t, strings.Contains(string(content), ".bitrise.secrets.yml"))
+
+		expected := "\n.bitrise.secrets.yml"
+		require.Equalf(t, string(content), expected, fmt.Sprintf("got `%s` want `%s`: generated .gitignore at %s", content, expected, gitignorePath))
 
 	}
 
@@ -153,7 +154,7 @@ func Test_GitignoreTest(t *testing.T) {
 		require.NoError(t, err, out)
 
 		expected := "node_modules\nlocal.env\n.bitrise.secrets.yml"
-		require.True(t, strings.Contains(string(content), expected), fmt.Sprintf("got `%s` want `%s`: generated .gitignore at %s", content, expected, gitignorePath))
+		require.Equalf(t, string(content), expected, fmt.Sprintf("got `%s` want `%s`: generated .gitignore at %s", content, expected, gitignorePath))
 
 	}
 }
