@@ -109,7 +109,7 @@ func Test_InitTest(t *testing.T) {
 }
 
 func Test_GitignoreTest(t *testing.T) {
-	t.Log(".bitrise.secrets.yml added to .gitignore when command succeeds")
+	t.Log("create .gitignore with .bitrise.secrets.yml when .gitignore does not exist")
 	{
 		tmpDir, err := pathutil.NormalizedOSTempDirPath("")
 		require.NoError(t, err)
