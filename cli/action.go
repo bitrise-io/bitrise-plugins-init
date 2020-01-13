@@ -105,7 +105,8 @@ func action(c *cli.Context) error {
 	log.Infof("bitrise secrets generated at: %s", secretsPth)
 
 	if err := gitignore(".bitrise.secrets.yml", "./.gitignore"); err != nil {
-		log.Fatal(err)
+		log.Warnf("Could not add .bitrise.secrets.yml to .gitignore: %s", err)
+		log.Warnf("Please be advised, that for security considerations, it is not recommended to upload .bitrise.secrets.yml to version control")
 	}
 
 	return nil
