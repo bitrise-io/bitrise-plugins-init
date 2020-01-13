@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 
@@ -17,6 +18,29 @@ import (
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/urfave/cli"
 )
+
+type gitignoreContent string
+
+func (content gitignoreContent) contains(pattern string) bool {
+	re := regexp.MustCompile(fmt.Sprintf("^%s$", pattern))
+	return re.MatchString(string(content))
+}
+
+func (content gitignoreContent) hasTrailingNewline() bool {
+	return strings.HasSuffix(string(content), fmt.Sprintln(""))
+}
+
+func (content gitignoreContent) append(pattern string) gitignoreContent {
+	return gitignoreContent(string(content) + pattern)
+}
+
+func (content gitignoreContent) write(path string) error {
+	if err := ioutil.WriteFile(path, []byte(content), 0644); err != nil {
+		return fmt.Errorf("write pattern to .gitignore at %s: %s", path, err)
+	}
+
+	return nil
+}
 
 func action(c *cli.Context) error {
 	minimal := c.Bool("minimal")
@@ -112,27 +136,37 @@ func action(c *cli.Context) error {
 	return nil
 }
 
-func gitignore(pattern, gitignorePath string) error {
-	f, err := os.OpenFile(gitignorePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+func gitignore(pattern, pth string) error {
+	exists, err := pathutil.IsPathExists(pth)
 	if err != nil {
-		return fmt.Errorf("open .gitignore file at %s: %s", gitignorePath, err)
+		return fmt.Errorf("check path existence (%s): %s", pth, err)
 	}
 
-	contents, err := ioutil.ReadFile(gitignorePath)
-	matched, err := regexp.MatchString(fmt.Sprintf("^%s$", pattern), string(contents))
-	if err != nil {
-		return fmt.Errorf("matching .gitignore file contents at %s against %s: %s", gitignorePath, pattern, err)
+	if !exists {
+		if _, err = os.OpenFile(pth, os.O_CREATE, 0644); err != nil {
+			return fmt.Errorf("create .gitignore file at %s: %s", pth, err)
+		}
 	}
-	if matched {
+
+	content, err := ioutil.ReadFile(pth)
+	if err != nil {
+		return fmt.Errorf("read .gitignore at %s: %s", pth, err)
+	}
+
+	initial := gitignoreContent(content)
+
+	if initial.contains(pattern) {
 		return nil
 	}
 
-	if len(contents) > 0 && contents[len(contents)-1] != '\n' {
+	if len(initial) > 0 && !initial.hasTrailingNewline() {
 		pattern = "\n" + pattern
 	}
 
-	if _, err := f.WriteString(pattern); err != nil {
-		return fmt.Errorf("write pattern to .gitignore at %s: %s", gitignorePath, err)
+	updated := gitignoreContent(string(content) + pattern)
+
+	if err := updated.write(pth); err != nil {
+		return fmt.Errorf("write .gitignore at %s: %s", pth, err)
 	}
 
 	return nil
