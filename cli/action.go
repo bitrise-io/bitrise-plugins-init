@@ -119,7 +119,7 @@ func gitignore(pattern, gitignorePath string) error {
 	}
 
 	contents, err := ioutil.ReadFile(gitignorePath)
-	matched, err := regexp.MatchString(fmt.Sprintf("(^%[1]s\n)|(\n%[1]s\n)", pattern), string(contents))
+	matched, err := regexp.MatchString(fmt.Sprintf("^%s$", pattern), string(contents))
 	if err != nil {
 		return fmt.Errorf("matching .gitignore file contents at %s against %s: %s", gitignorePath, pattern, err)
 	}
