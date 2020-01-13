@@ -104,6 +104,10 @@ func action(c *cli.Context) error {
 
 	log.Infof("bitrise secrets generated at: %s", secretsPth)
 
+	if err := gitignore(".bitrise.secrets.yml", "./.gitignore"); err != nil {
+		log.Fatal(err)
+	}
+
 	return nil
 }
 

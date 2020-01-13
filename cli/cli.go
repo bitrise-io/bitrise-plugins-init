@@ -34,10 +34,6 @@ func Run() {
 			log.Fatal(err)
 		}
 
-		if err := gitignore(".bitrise.secrets.yml", "./.gitignore"); err != nil {
-			log.Fatal(err)
-		}
-
 		return nil
 	}
 	app.Flags = []cli.Flag{
