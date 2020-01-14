@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 
@@ -127,7 +128,7 @@ func gitignore(pattern, gitignorePath string) error {
 		return nil
 	}
 
-	if len(contents) > 0 && contents[len(contents)-1] != '\n' {
+	if len(contents) > 0 && !strings.HasSuffix(string(contents), fmt.Sprintln("")) {
 		pattern = "\n" + pattern
 	}
 
