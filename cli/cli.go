@@ -33,6 +33,7 @@ func Run() {
 		if err := action(c); err != nil {
 			log.Fatal(err)
 		}
+
 		return nil
 	}
 	app.Flags = []cli.Flag{

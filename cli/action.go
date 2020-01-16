@@ -2,7 +2,10 @@ package cli
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
+	"regexp"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 
@@ -101,6 +104,42 @@ func action(c *cli.Context) error {
 	}
 
 	log.Infof("bitrise secrets generated at: %s", secretsPth)
+
+	if err := gitignore(".bitrise.secrets.yml", "./.gitignore"); err != nil {
+		log.Warnf("Could not add .bitrise.secrets.yml to .gitignore: %s", err)
+		log.Warnf("Please be advised, that for security considerations, it is not recommended to upload .bitrise.secrets.yml to version control")
+	}
+
+	return nil
+}
+
+func gitignore(pattern, gitignorePath string) error {
+	f, err := os.OpenFile(gitignorePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("open .gitignore file at %s: %s", gitignorePath, err)
+	}
+	defer func() {
+		if err := f.Close(); err != nil {
+			log.Warnf("Could not close file (%s): %s", gitignorePath, err)
+		}
+	}()
+
+	contents, err := ioutil.ReadFile(gitignorePath)
+	matched, err := regexp.MatchString(fmt.Sprintf("^%s$", pattern), string(contents))
+	if err != nil {
+		return fmt.Errorf("matching .gitignore file contents at %s against %s: %s", gitignorePath, pattern, err)
+	}
+	if matched {
+		return nil
+	}
+
+	if len(contents) > 0 && !strings.HasSuffix(string(contents), fmt.Sprintln("")) {
+		pattern = "\n" + pattern
+	}
+
+	if _, err := f.WriteString(pattern); err != nil {
+		return fmt.Errorf("write pattern to .gitignore at %s: %s", gitignorePath, err)
+	}
 
 	return nil
 }
