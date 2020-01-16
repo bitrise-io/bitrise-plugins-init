@@ -118,7 +118,11 @@ func gitignore(pattern, gitignorePath string) error {
 	if err != nil {
 		return fmt.Errorf("open .gitignore file at %s: %s", gitignorePath, err)
 	}
-	defer f.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+			log.Warnf("Could not close file (%s): %s", gitignorePath, err)
+		}
+	}()
 
 	contents, err := ioutil.ReadFile(gitignorePath)
 	matched, err := regexp.MatchString(fmt.Sprintf("^%s$", pattern), string(contents))
