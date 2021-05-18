@@ -27,7 +27,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f791c89ee5f35754e01fc433a87df2be875a32acace5ce4db32bbdb7d8c7f66b"
+  digest = "1:0d67e18676a5df5d1616aa5ab3275ba617bbe7be1b06065aab41016f59c694d4"
   name = "github.com/bitrise-io/bitrise-init"
   packages = [
     "analytics",
@@ -45,13 +45,12 @@
     "scanners/macos",
     "scanners/reactnative",
     "scanners/xamarin",
-    "step",
     "steps",
     "toolscanner",
     "utility",
   ]
   pruneopts = "UT"
-  revision = "c11d38b7aef38c82ecf35ab64bd988da7c3fe15d"
+  revision = "0b2b7f91bdb1bbd05099230e9500c6f3fd59fd73"
 
 [[projects]]
   branch = "master"
@@ -71,13 +70,23 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f6df83c190890636e8dc788e71ac8e81ed0cf1c41ee087374b88df9a4ded9558"
+  digest = "1:7db449ff3e8027af005cbaa9f84f1589d9325f4c7f7202e847808c00acf10794"
+  name = "github.com/bitrise-io/go-steputils"
+  packages = [
+    "command/rubyscript",
+    "step",
+  ]
+  pruneopts = "UT"
+  revision = "5b6261447e77e5279c0a970fb11e7dd179eb97c3"
+
+[[projects]]
+  branch = "master"
+  digest = "1:c8da75d14364408bab6d9407424d0d2c95bbd747b1b82787113391f33f6fe2db"
   name = "github.com/bitrise-io/go-utils"
   packages = [
     "colorstring",
     "command",
     "command/git",
-    "command/rubyscript",
     "errorutil",
     "fileutil",
     "log",
@@ -87,18 +96,19 @@
     "sliceutil",
   ]
   pruneopts = "UT"
-  revision = "859032e9adf02532a86a362ae5d1cfbc9292fcaf"
+  revision = "aa64fd88ca498ff730843ed9418e6f58ab8f146d"
 
 [[projects]]
   branch = "master"
-  digest = "1:aa2cd42b0339f8fe43dd00c2ec50dc126f91d255d0d3f1926aeb99939218e9df"
+  digest = "1:60e0d8e6fee000c4badb0c519abd8c8ca275f35181ff007f3e44753b6e32a7f9"
   name = "github.com/bitrise-io/go-xcode"
   packages = [
+    "pathfilters",
     "plistutil",
     "xcodeproj",
   ]
   pruneopts = "UT"
-  revision = "13f817b37b1c63bfa16ae226f4389f026accfe87"
+  revision = "792daa92765738e6538dcdfa0df0015c5bbc738a"
 
 [[projects]]
   branch = "master"
