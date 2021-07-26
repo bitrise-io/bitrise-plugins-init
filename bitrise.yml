@@ -44,7 +44,7 @@ workflows:
   create_binaries:
     title: Create binaries
     description: |
-        Creates Linux and Darwin binaries
+      Creates Linux and Darwin binaries
     steps:
     - script:
         title: create Linux and macOS (Darwin) bins, with version infos
@@ -91,20 +91,3 @@ workflows:
 
             cp "${binary_path}" "${BITRISE_DEPLOY_DIR}/${BIN_NAME}-${OS}-${ARCH}"
             envman add --key LINUX_BIN_NAME --value "${BIN_NAME}-${OS}-${ARCH}"
-
-  # ----------------------------------------------------------------
-  # --- workflows for Utility
-  dep-update:
-    title: Dep update
-    description: |
-      Used for updating bitrise dependencies with dep
-    steps:
-    - script:
-        title: Dependency update
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -ex
-            go get -u -v github.com/golang/dep/cmd/dep
-            dep ensure -v
-            dep ensure -v -update
