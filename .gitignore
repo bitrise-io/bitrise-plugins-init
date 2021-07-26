@@ -4,3 +4,4 @@ _defaults
 _scan_result
 .bitrise*
 .gows*
+.idea/
