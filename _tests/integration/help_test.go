@@ -20,7 +20,7 @@ VERSION:
    %s
 
 COMMANDS:
-     help, h  Shows a list of commands or help for one command
+   help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
    --minimal      create empty bitrise config and secrets
