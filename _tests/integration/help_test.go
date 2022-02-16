@@ -24,6 +24,7 @@ COMMANDS:
 
 GLOBAL OPTIONS:
    --minimal      create empty bitrise config and secrets
+   --private      is a private repository
    --help, -h     show help
    --version, -v  print the version`, version.VERSION)
 
