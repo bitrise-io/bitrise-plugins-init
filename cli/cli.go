@@ -5,8 +5,8 @@ import (
 	"os"
 	"path"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/bitrise-io/bitrise-plugins-init/version"
+	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
@@ -40,6 +40,10 @@ func Run() {
 		cli.BoolFlag{
 			Name:  "minimal",
 			Usage: "create empty bitrise config and secrets",
+		},
+		cli.BoolFlag{
+			Name:  "private",
+			Usage: "is a private repository",
 		},
 	}
 

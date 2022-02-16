@@ -9,13 +9,13 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/bitrise-io/bitrise-init/scanner"
 	"github.com/bitrise-io/bitrise-init/scanners"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
+	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
@@ -67,7 +67,8 @@ func action(c *cli.Context) error {
 			return fmt.Errorf("failed to get current directory, error: %s", err)
 		}
 
-		scanResult := scanner.Config(currentDir)
+		isPrivateRepo := c.Bool("private")
+		scanResult := scanner.Config(currentDir, isPrivateRepo)
 
 		if len(scanResult.ScannerToOptionRoot) == 0 {
 			return fmt.Errorf("no known platform type detected")
