@@ -5,3 +5,5 @@ _scan_result
 .bitrise*
 .gows*
 .idea/
+bitrise-plugins-init
+.DS_STORE
