@@ -7,3 +7,4 @@ _scan_result
 .idea/
 bitrise-plugins-init
 .DS_STORE
+dist/
