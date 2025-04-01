@@ -10,9 +10,12 @@ workflows:
     after_run:
     - integration-test
     steps:
+    - git::https://github.com/bitrise-steplib/steps-check.git:
+        title: Lint
+        inputs:
+        - workflow: lint
+        - skip_step_yml_validation: "yes"
     - go-list: {}
-    - golint: {}
-    - errcheck: {}
     - go-test: {}
 
   integration-test:
