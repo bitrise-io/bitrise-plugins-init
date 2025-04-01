@@ -37,7 +37,7 @@ func action(c *cli.Context) error {
 	}
 
 	// generate config
-	bitriseConfig := bitriseModels.BitriseDataModel{}
+	var bitriseConfig bitriseModels.BitriseDataModel
 	if minimal {
 		scanResult, err := scanner.ManualConfig()
 		if err != nil {
@@ -125,7 +125,7 @@ func gitignore(pattern, gitignorePath string) error {
 		}
 	}()
 
-	contents, err := ioutil.ReadFile(gitignorePath)
+	contents, _ := ioutil.ReadFile(gitignorePath)
 	matched, err := regexp.MatchString(fmt.Sprintf("^%s$", pattern), string(contents))
 	if err != nil {
 		return fmt.Errorf("matching .gitignore file contents at %s against %s: %s", gitignorePath, pattern, err)
