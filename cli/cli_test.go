@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"io/ioutil"
+	"os"
 	"path"
 	"testing"
 
@@ -21,7 +21,7 @@ func Test_GitignoreTest(t *testing.T) {
 		err = gitignore(ignorePattern, gitignorePath)
 		require.NoError(t, err)
 
-		contents, err := ioutil.ReadFile(gitignorePath)
+		contents, err := os.ReadFile(gitignorePath)
 		require.NoError(t, err)
 
 		require.Equal(t, ".bitrise.secrets.yml", string(contents))
@@ -35,13 +35,13 @@ func Test_GitignoreTest(t *testing.T) {
 
 		gitignorePath := path.Join(tmpDir, ".gitignore")
 		content := []byte("node_modules\n")
-		err = ioutil.WriteFile(gitignorePath, content, 0644)
+		err = os.WriteFile(gitignorePath, content, 0644)
 		require.NoError(t, err)
 
 		err = gitignore(ignorePattern, gitignorePath)
 		require.NoError(t, err)
 
-		contents, err := ioutil.ReadFile(gitignorePath)
+		contents, err := os.ReadFile(gitignorePath)
 		require.NoError(t, err)
 		require.Equal(t, "node_modules\n.bitrise.secrets.yml", string(contents))
 	}
@@ -53,13 +53,13 @@ func Test_GitignoreTest(t *testing.T) {
 
 		gitignorePath := path.Join(tmpDir, ".gitignore")
 		content := []byte("node_modules")
-		err = ioutil.WriteFile(gitignorePath, content, 0644)
+		err = os.WriteFile(gitignorePath, content, 0644)
 		require.NoError(t, err)
 
 		err = gitignore(ignorePattern, gitignorePath)
 		require.NoError(t, err)
 
-		contents, err := ioutil.ReadFile(gitignorePath)
+		contents, err := os.ReadFile(gitignorePath)
 		require.NoError(t, err)
 		require.Equal(t, "node_modules\n.bitrise.secrets.yml", string(contents))
 	}
@@ -71,13 +71,13 @@ func Test_GitignoreTest(t *testing.T) {
 
 		gitignorePath := path.Join(tmpDir, ".gitignore")
 		content := []byte(".bitrise.secrets.yml")
-		err = ioutil.WriteFile(gitignorePath, content, 0644)
+		err = os.WriteFile(gitignorePath, content, 0644)
 		require.NoError(t, err)
 
 		err = gitignore(ignorePattern, gitignorePath)
 		require.NoError(t, err)
 
-		contents, err := ioutil.ReadFile(gitignorePath)
+		contents, err := os.ReadFile(gitignorePath)
 		require.NoError(t, err)
 		require.Equal(t, ".bitrise.secrets.yml", string(contents))
 	}

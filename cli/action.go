@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
@@ -11,7 +10,7 @@ import (
 
 	"github.com/bitrise-io/bitrise-init/scanner"
 	"github.com/bitrise-io/bitrise-init/scanners"
-	bitriseModels "github.com/bitrise-io/bitrise/models"
+	bitriseModels "github.com/bitrise-io/bitrise/v2/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
@@ -125,7 +124,7 @@ func gitignore(pattern, gitignorePath string) error {
 		}
 	}()
 
-	contents, _ := ioutil.ReadFile(gitignorePath)
+	contents, _ := os.ReadFile(gitignorePath)
 	matched, err := regexp.MatchString(fmt.Sprintf("^%s$", pattern), string(contents))
 	if err != nil {
 		return fmt.Errorf("matching .gitignore file contents at %s against %s: %s", gitignorePath, pattern, err)
