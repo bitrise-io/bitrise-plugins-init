@@ -15,8 +15,8 @@ workflows:
         inputs:
         - workflow: lint
         - skip_step_yml_validation: "yes"
-    - go-list: {}
-    - go-test: {}
+    - go-list: { }
+    - go-test: { }
 
   integration-test:
     steps:
@@ -45,7 +45,7 @@ workflows:
   create-release:
     description: Creates Linux and Darwin binaries, then publishes a GitHub release
     envs:
-    - GITHUB_TOKEN: $GIT_BOT_USER_ACCESS_TOKEN # Goreleaser expects this env var
+    - GITHUB_TOKEN: $GIT_BOT_USER_ACCESS_TOKEN #Goreleaser expects this env var
     steps:
     - script:
         title: Goreleaser (create binaries + publish to GH)
