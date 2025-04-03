@@ -3,7 +3,7 @@ module github.com/bitrise-io/bitrise-plugins-init
 go 1.22.0
 
 require (
-	github.com/bitrise-io/bitrise-init v0.0.0-20250328140845-0fdc2f389785
+	github.com/bitrise-io/bitrise-init v0.0.0-20250402094657-88c9831e3db2
 	github.com/bitrise-io/bitrise/v2 v2.30.5
 	github.com/bitrise-io/envman v0.0.0-20210630102032-df85af51bd1a
 	github.com/bitrise-io/go-utils v1.0.13
