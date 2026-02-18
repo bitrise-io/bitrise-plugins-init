@@ -3,7 +3,7 @@ module github.com/bitrise-io/bitrise-plugins-init
 go 1.22.0
 
 require (
-	github.com/bitrise-io/bitrise-init v0.0.0-20250520133318-e1981b5c0db4
+	github.com/bitrise-io/bitrise-init v0.0.0-20260218153855-a39cf058bdb8
 	github.com/bitrise-io/bitrise/v2 v2.30.5
 	github.com/bitrise-io/envman v0.0.0-20210630102032-df85af51bd1a
 	github.com/bitrise-io/go-utils v1.0.13
@@ -14,6 +14,7 @@ require (
 )
 
 require (
+	github.com/BurntSushi/toml v1.5.0 // indirect
 	github.com/Masterminds/semver/v3 v3.2.1 // indirect
 	github.com/beevik/etree v1.2.0 // indirect
 	github.com/bitrise-io/envman/v2 v2.5.3 // indirect

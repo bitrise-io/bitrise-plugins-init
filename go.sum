@@ -1,10 +1,12 @@
 github.com/BurntSushi/toml v1.3.2/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
+github.com/BurntSushi/toml v1.5.0 h1:W5quZX/G/csjUnuI8SUYlsHs9M38FC7znL0lIO+DvMg=
+github.com/BurntSushi/toml v1.5.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
 github.com/Masterminds/semver/v3 v3.2.1 h1:RN9w6+7QoMeJVGyfmbcgs28Br8cvmnucEXnY0rYXWg0=
 github.com/Masterminds/semver/v3 v3.2.1/go.mod h1:qvl/7zhW3nngYb5+80sSMF+FG2BjYrf8m9wsX0PNOMQ=
 github.com/beevik/etree v1.2.0 h1:l7WETslUG/T+xOPs47dtd6jov2Ii/8/OjCldk5fYfQw=
 github.com/beevik/etree v1.2.0/go.mod h1:aiPf89g/1k3AShMVAzriilpcE4R/Vuor90y83zVZWFc=
-github.com/bitrise-io/bitrise-init v0.0.0-20250520133318-e1981b5c0db4 h1:8zIn58jz+KtVt1W3r3pkZn4pAliSsLKqAwADeWkdmac=
-github.com/bitrise-io/bitrise-init v0.0.0-20250520133318-e1981b5c0db4/go.mod h1:+aSu4EJO5BnsjjGG5nL6fdXciDaJr3EJnlAEw1P1eMU=
+github.com/bitrise-io/bitrise-init v0.0.0-20260218153855-a39cf058bdb8 h1:bK0SDmue2s9dGwo8yV2vGu5lZJHDs5S6Prv3dBYhWP0=
+github.com/bitrise-io/bitrise-init v0.0.0-20260218153855-a39cf058bdb8/go.mod h1:EGPy+4noRCmWkdnX13lbwPbz6eUbqjfQLf9mpvN1ubI=
 github.com/bitrise-io/bitrise/v2 v2.30.5 h1:ez1NfLMa8OyO4EfHdRvYDjY2og6GAQv8RJczu75nDK8=
 github.com/bitrise-io/bitrise/v2 v2.30.5/go.mod h1:GQv5foBoO8bmyyybHZIEqMeF9vxT9LfJmOASZ6RWKHI=
 github.com/bitrise-io/envman v0.0.0-20210630102032-df85af51bd1a h1:CV4OjLcCduu4i+c72XrHoVLh3HOsqEcelf+d1PZR/Os=
